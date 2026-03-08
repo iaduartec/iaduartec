@@ -146,12 +146,12 @@ Vamos, que igual te levanto una red, te configuro el servidor y luego te hago la
 ## 📈 GitHub Stats
 
 <p align="center">
-  <img height="170" src="https://github-readme-stats.vercel.app/api?username=ia@duartec.es&show_icons=true&theme=tokyonight&hide_border=true" />
-  <img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=ia@duartec.es&layout=compact&theme=tokyonight&hide_border=true" />
+  <img height="170" src="https://github-readme-stats.vercel.app/api?username=iaduartec&show_icons=true&theme=tokyonight&hide_border=true" />
+  <img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=iaduartec&layout=compact&theme=tokyonight&hide_border=true" />
 </p>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=ia@duartec.es&theme=tokyonight&hide_border=true" />
+  <img src="https://streak-stats.demolab.com?user=iaduartec&theme=tokyonight&hide_border=true" />
 </p>
 
 ---
