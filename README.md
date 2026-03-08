@@ -184,6 +184,15 @@ La idea es que funcionen, se mantengan bien y no exploten cuando alguien toque d
 
 ---
 
+## Webs
+
+- Duartec: [https://kiri-vnic.tail4b3cf6.ts.net/duartec](https://kiri-vnic.tail4b3cf6.ts.net/duartec)
+- Portfolio: [https://kiri-vnic.tail4b3cf6.ts.net/portfolio](https://kiri-vnic.tail4b3cf6.ts.net/portfolio)
+- Espacio: [https://kiri-vnic.tail4b3cf6.ts.net/espacio/](https://kiri-vnic.tail4b3cf6.ts.net/espacio/)
+- Restaurante: [https://kiri-vnic.tail4b3cf6.ts.net/restaurante/](https://kiri-vnic.tail4b3cf6.ts.net/restaurante/)
+
+---
+
 <p align="center">
   <i>Infraestructura, cable, red, cámaras, servidores y desarrollo.</i><br/>
   <i>Porque reiniciar ayuda. Pero entender el fallo te evita repetir la película.</i>
