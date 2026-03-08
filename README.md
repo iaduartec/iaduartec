@@ -188,3 +188,5 @@ La idea es que funcionen, se mantengan bien y no exploten cuando alguien toque d
   <i>Infraestructura, cable, red, cámaras, servidores y desarrollo.</i><br/>
   <i>Porque reiniciar ayuda. Pero entender el fallo te evita repetir la película.</i>
 </p>
+
+<!-- profile-refresh: 2026-03-08 -->
