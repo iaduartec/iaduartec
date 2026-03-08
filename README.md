@@ -1,8 +1,6 @@
-# Sergio Gómez Barrio
-
-This is my personal repo for README.
-<h1 align="center">Sergio Gómez Barrio</h1>
-<h3 align="center">IT · Telecomunicaciones · Infraestructura · Desarrollo de Apps Multiplataforma</h3>
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=240&text=Sergio%20Gómez%20Barrio&fontAlign=50&fontAlignY=38&color=0:0f172a,50:1e3a8a,100:2563eb&fontColor=ffffff&desc=IT%20%7C%20Telecomunicaciones%20%7C%20Infraestructura%20%7C%20Automatización%20%7C%20Desarrollo&descAlign=50&descAlignY=60" />
+</p>
 
 <p align="center">
   <a href="https://www.duartec.es" target="_blank">
@@ -16,69 +14,74 @@ This is my personal repo for README.
   </a>
 </p>
 
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=iaduartec&label=Visitas%20al%20perfil&color=2563eb&style=flat" alt="profile views" />
+</p>
+
 ---
 
 ## 👨‍💻 Sobre mí
 
-Soy **técnico instalador de telecomunicaciones** en **Duartec Instalaciones Informáticas**, especializado en la instalación, mantenimiento e integración de soluciones tecnológicas para empresa y entorno profesional.
+Soy **técnico instalador de telecomunicaciones** en **Duartec Instalaciones Informáticas**, especializado en instalaciones, mantenimiento e integración de soluciones tecnológicas para empresa y entorno profesional.
 
-Trabajo combinando campo y escritorio: un día estoy con **fibra, CCTV, redes, sonido, electricidad o cableado estructurado**, y al siguiente con **automatizaciones, servidores, despliegues web o desarrollo de herramientas** para mejorar procesos.
+Mi trabajo mezcla tres mundos que normalmente van por separado, pero juntos funcionan bastante mejor:
 
-Me gusta moverme entre tres mundos:
+- **infraestructura IT y telecomunicaciones**
+- **seguridad electrónica, redes y sistemas**
+- **desarrollo, automatización y herramientas internas**
 
-- **Infraestructura IT y telecomunicaciones**
-- **Sistemas de seguridad, cableado y electrónica**
-- **Desarrollo de apps y automatización**
+Un día toca **fibra, CCTV, WiFi, racks, sonido o electricidad**.  
+Otro, **servidores, despliegues, automatizaciones, APIs, paneles de control o desarrollo web/app**.
 
-Vamos, que igual te levanto una red, te configuro el servidor y luego te hago la interfaz para gestionarlo. El combo humilde.
+Me gusta construir soluciones que no solo queden bien en un esquema o en una demo, sino que **funcionen en campo, en producción y sin humo ornamental**.
 
 ---
 
-## 🧰 Áreas en las que trabajo
+## 🧰 Qué hago
 
 ### Telecomunicaciones e infraestructura
 - Cableado estructurado
 - Redes LAN / WiFi
 - Fibra óptica y fusionado
-- Armarios rack y CPD
+- Racks, CPD y organización técnica
 - Switching, routing y conectividad
-- Cobertura inalámbrica y repetidores
+- Cobertura inalámbrica, repetidores y optimización de red
 
-### Seguridad y sistemas
+### Seguridad y electrónica
 - Videovigilancia CCTV / IP
 - Alarmas y sensores
 - Control de accesos
-- Integración de dispositivos
 - Grabadores NVR / DVR
-- Diagnóstico y mantenimiento
+- Integración de dispositivos
+- Diagnóstico, mantenimiento y soporte técnico
 
 ### Electricidad y sonido
-- Instalaciones eléctricas básicas
-- Alimentación para equipos técnicos
+- Instalaciones eléctricas técnicas
+- Alimentación para equipos
 - Sonido profesional y audio ambiental
-- Montaje y ajuste de equipos
+- Montaje, ajuste y puesta en marcha
 
 ### Desarrollo y automatización
 - Apps multiplataforma
 - Herramientas internas para empresa
-- Automatización de flujos
+- Automatización de procesos
 - Integración con APIs
 - Dashboards y paneles de control
-- Web corporativa y sistemas de gestión
+- Soluciones web y sistemas de gestión
 
 ---
 
-## 🚀 Stack técnico
+## ⚙️ Stack técnico
 
-### Sistemas y herramientas
+### Sistemas y plataforma
 <p>
   <img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white" />
   <img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" />
   <img src="https://img.shields.io/badge/WSL2-4D4D4D?style=flat-square&logo=windows-terminal&logoColor=white" />
+  <img src="https://img.shields.io/badge/Oracle%20Cloud-F80000?style=flat-square&logo=oracle&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
   <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" />
   <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
-  <img src="https://img.shields.io/badge/Oracle%20Cloud-F80000?style=flat-square&logo=oracle&logoColor=white" />
 </p>
 
 ### Desarrollo
@@ -99,7 +102,7 @@ Vamos, que igual te levanto una red, te configuro el servidor y luego te hago la
   <img src="https://img.shields.io/badge/Google_Sheets-34A853?style=flat-square&logo=googlesheets&logoColor=white" />
 </p>
 
-### Telecom y campo
+### Campo y telecom
 <p>
   <img src="https://img.shields.io/badge/Fibra_Óptica-0B84F3?style=flat-square" />
   <img src="https://img.shields.io/badge/CCTV-111111?style=flat-square" />
@@ -113,40 +116,57 @@ Vamos, que igual te levanto una red, te configuro el servidor y luego te hago la
 
 ## 🏢 Actualmente
 
-- Técnico instalador en **Duartec Instalaciones Informáticas**
-- Desarrollo y mejora de soluciones para:
-  - instalaciones IT
-  - videovigilancia
-  - redes y telecom
-  - automatización de procesos
-  - herramientas internas y paneles de gestión
+Trabajo en **Duartec Instalaciones Informáticas**, participando en proyectos relacionados con:
+
+- instalaciones IT y telecomunicaciones
+- redes, fibra y conectividad
+- videovigilancia, alarmas y seguridad
+- despliegues, servidores y cloud
+- automatización de procesos
+- herramientas técnicas y paneles de gestión
 
 ---
 
-## 📌 En lo que me centro
+## 🧠 Enfoque
 
-- Diseñar soluciones técnicas que funcionen **en obra y en producción**
-- Unir **infraestructura física + software + automatización**
-- Mejorar procesos de empresa con herramientas útiles, no con humo premium
-- Crear sistemas mantenibles, claros y orientados a negocio
+Me centro en diseñar soluciones que unan bien estas capas:
+
+- **infraestructura física**
+- **sistemas y conectividad**
+- **software y automatización**
+- **operativa real de empresa**
+
+La idea no es montar cosas “bonitas” solo en papel.  
+La idea es que funcionen, se mantengan bien y no exploten cuando alguien toque donde no debe.
 
 ---
 
-## 📂 Proyectos e intereses
+## 🚀 Featured work
 
-- Infraestructura de red y telecomunicaciones
-- Sistemas de videovigilancia y seguridad
-- Servidores, despliegues y entornos cloud
-- Automatización con IA
-- Apps multiplataforma y paneles de control
-- Herramientas para gestión técnica y operativa
+### Infraestructura y telecom
+- despliegue y mantenimiento de redes
+- instalaciones de fibra y cableado estructurado
+- racks, conectividad y cobertura WiFi
+- integración de equipos en entorno profesional
+
+### Seguridad y sistemas
+- videovigilancia IP
+- alarmas, sensores y grabación
+- soporte técnico e integración de dispositivos
+- mantenimiento preventivo y correctivo
+
+### Desarrollo y automatización
+- paneles internos para gestión técnica
+- automatización de flujos de trabajo
+- integración con APIs y herramientas de IA
+- soluciones web y apps orientadas a operativa real
 
 ---
 
 ## 📈 GitHub Stats
 
 <p align="center">
-  <img height="170" src="https://github-readme-stats.vercel.app/api?username=iaduartec&show_icons=true&theme=tokyonight&hide_border=true" />
+  <img height="170" src="https://github-readme-stats.vercel.app/api?username=iaduartec&show_icons=true&theme=tokyonight&hide_border=true&rank_icon=github" />
   <img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=iaduartec&layout=compact&theme=tokyonight&hide_border=true" />
 </p>
 
@@ -165,6 +185,6 @@ Vamos, que igual te levanto una red, te configuro el servidor y luego te hago la
 ---
 
 <p align="center">
-  <i>Infraestructura, cable, red, cámaras, servidores y código.</i><br/>
-  <i>Porque a veces reiniciar ayuda, pero no siempre hace milagros.</i>
+  <i>Infraestructura, cable, red, cámaras, servidores y desarrollo.</i><br/>
+  <i>Porque reiniciar ayuda. Pero entender el fallo te evita repetir la película.</i>
 </p>
