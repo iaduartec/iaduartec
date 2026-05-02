@@ -1,0 +1,249 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the woname: Issue Auto Responder (Safe)
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: issue-auto-responder-${{ github.event.issue.number || github.event.comment.issue_url }}
+  cancel-in-progress: true
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether to respond
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const eventName = context.eventName;
+
+            // Support both "issues" and "issue_comment" events
+            let issue;
+            let commentBody = "";
+
+            if (eventName === "issues") {
+              issue = context.payload.issue;
+            } else if (eventName === "issue_comment") {
+              issue = context.payload.issue;
+              commentBody = (context.payload.comment && context.payload.comment.body) ? context.payload.comment.body : "";
+            } else {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // Don't reply to bots (avoid loops)
+            const authorType = issue.user && issue.user.type ? issue.user.type : "";
+            if (authorType === "Bot") {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // For comments: only run when a maintainer explicitly asks
+            // Trigger phrase: /triage
+            if (eventName === "issue_comment" && !commentBody.includes("/triage")) {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // If the issue is locked, skip
+            if (issue.locked) {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // If we've already posted (simple marker), skip to avoid spam
+            const marker = "<!-- duartec-auto-triage -->";
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            });
+            const already = comments.some(c => (c.body || "").includes(marker));
+            if (already && eventName === "issues") {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            core.setOutput("should_run", "true");
+            core.setOutput("issue_number", String(issue.number));
+            core.setOutput("issue_title", issue.title || "");
+            core.setOutput("issue_body", issue.body || "");
+
+      - name: Stop if gated
+        if: steps.gate.outputs.should_run != 'true'
+        run: echo "Gated - not responding."
+
+      - name: Generate reply with OpenAI (GPT-5.5)
+        if: steps.gate.outputs.should_run == 'true'
+        id: gen
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: ${{ steps.gate.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.gate.outputs.issue_body }}
+        run: |
+          node <<'NODE'
+          const https = require("https");
+
+          const issueTitle = process.env.ISSUE_TITLE || "";
+          const issueBody = process.env.ISSUE_BODY || "";
+
+          // System policy: your "no inventar" + formato obligatorio
+          const instructions = `
+Actúa como asistente técnico para responder en GitHub Issues/Discussions.
+
+OBJETIVO
+Redactar una respuesta útil y publicable SOLO con información:
+- Documentación oficial o repos conocidos: OpenClaw, Ollama, Open WebUI, Next.js, Vercel, Docker, GitHub Actions, Playwright, Tailscale, Caddy, Ubuntu/systemd, Hikvision/Dahua cuando aplique.
+- O experiencia previa aportada por el usuario.
+- O comandos estándar y seguros (diagnóstico/lectura) que no rompan nada.
+
+REGLAS CRÍTICAS
+- No inventes soluciones.
+- No des comandos “probables” si no son estándar/seguros o no están verificados.
+- Si no hay base suficiente: pide datos concretos (logs/versión/config).
+- Diferencia claramente: (1) Hecho comprobado (2) Hipótesis razonable (3) Información que falta
+- Evita sudo salvo imprescindible; si hace falta, indícalo y por qué.
+- No prometas que algo lo arregla si no está probado.
+- No menciones que esto lo escribió una IA.
+
+FORMATO DE SALIDA (OBLIGATORIO)
+1. Nivel de seguridad: Alta / Media / Baja
+2. Base usada: (docs oficiales / repo / issue confirmado / experiencia previa) o “no hay base suficiente”
+3. Información que falta: lista concreta
+4. Respuesta lista para publicar: breve, natural, técnica
+5. Versión corta: 2-4 líneas
+          `.trim();
+
+          const input = `
+Issue title:
+${issueTitle}
+
+Issue body:
+${issueBody}
+          `.trim();
+
+          const payload = JSON.stringify({
+            model: "gpt-5.5",
+            input: [
+              { role: "system", content: instructions },
+              { role: "user", content: input }
+            ]
+          });
+
+          const req = https.request(
+            {
+              hostname: "api.openai.com",
+              path: "/v1/responses",
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+                "Content-Length": Buffer.byteLength(payload),
+              },
+            },
+            (res) => {
+              let data = "";
+              res.on("data", (chunk) => (data += chunk));
+              res.on("end", () => {
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                  console.error("OpenAI error:", res.statusCode, data);
+                  process.exit(1);
+                }
+
+                const obj = JSON.parse(data);
+
+                // Try to extract text safely from Responses API
+                let text = "";
+                if (obj.output && Array.isArray(obj.output)) {
+                  for (const item of obj.output) {
+                    if (item && item.type === "message" && item.content) {
+                      for (const c of item.content) {
+                        if (c.type === "output_text" && c.text) text += c.text;
+                      }
+                    }
+                  }
+                }
+
+                // Fallback
+                if (!text && obj.output_text) text = obj.output_text;
+
+                // Write to GITHUB_OUTPUT (multiline)
+                const fs = require("fs");
+                const out = process.env.GITHUB_OUTPUT;
+                fs.appendFileSync(out, `reply<<EOF\n${text}\nEOF\n`);
+              });
+            }
+          );
+
+          req.on("error", (e) => {
+            console.error(e);
+            process.exit(1);
+          });
+
+          req.write(payload);
+          req.end();
+          NODE
+
+      - name: Post comment to issue
+        if: steps.gate.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = Number("${{ steps.gate.outputs.issue_number }}");
+            const reply = `${{ steps.gen.outputs.reply }}`;
+
+            const marker = "<!-- duartec-auto-triage -->";
+            const body = `${marker}\n${reply}`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              body
+            });rkflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
