@@ -1,0 +1,232 @@
+name: Issue Auto Responder (Duartec Safe)
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: issue-auto-responder-${{ github.repository }}-${{ github.event.issue.number || github.event.comment.issue_url }}
+  cancel-in-progress: true
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gate + collect issue data
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const eventName = context.eventName;
+
+            let issue;
+            let triggerCommentBody = "";
+
+            if (eventName === "issues") {
+              issue = context.payload.issue;
+            } else if (eventName === "issue_comment") {
+              issue = context.payload.issue;
+              triggerCommentBody = (context.payload.comment?.body || "");
+            } else {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // 1) Don't reply to bots (avoid loops)
+            const authorType = issue.user?.type || "";
+            if (authorType === "Bot") {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // 2) For issue_comment: only run if a maintainer explicitly asks
+            // Trigger phrase: /triage
+            if (eventName === "issue_comment" && !triggerCommentBody.includes("/triage")) {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // 3) If locked, skip
+            if (issue.locked) {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // 4) Avoid duplicates: if we already posted, skip automatic runs
+            const marker = "<!-- duartec-auto-triage -->";
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            });
+
+            const already = comments.some(c => (c.body || "").includes(marker));
+            if (already && eventName === "issues") {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
+            // Collect prior comments (what others wrote)
+            // Keep it short: last 12 comments (excluding our own marker ones)
+            const filtered = comments
+              .filter(c => !(c.body || "").includes(marker))
+              .slice(-12)
+              .map(c => {
+                const user = c.user?.login || "unknown";
+                const created = c.created_at || "";
+                const body = (c.body || "").slice(0, 4000); // safety cap
+                return `- ${user} (${created}):\n${body}`;
+              })
+              .join("\n\n");
+
+            core.setOutput("should_run", "true");
+            core.setOutput("issue_number", String(issue.number));
+            core.setOutput("issue_title", issue.title || "");
+            core.setOutput("issue_body", issue.body || "");
+            core.setOutput("prior_comments", filtered);
+
+      - name: Stop if gated
+        if: steps.gate.outputs.should_run != 'true'
+        run: echo "Gated - not responding."
+
+      - name: Generate reply (OpenAI Responses API)
+        if: steps.gate.outputs.should_run == 'true'
+        id: gen
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: ${{ steps.gate.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.gate.outputs.issue_body }}
+          PRIOR_COMMENTS: ${{ steps.gate.outputs.prior_comments }}
+        run: |
+          node <<'NODE'
+          const https = require("https");
+          const fs = require("fs");
+
+          const issueTitle = process.env.ISSUE_TITLE || "";
+          const issueBody = process.env.ISSUE_BODY || "";
+          const priorComments = process.env.PRIOR_COMMENTS || "";
+
+          const instructions = `
+Eres asistente técnico para responder GitHub Issues/Discussions.
+
+OBJETIVO
+Redactar una respuesta útil y publicable SOLO con información:
+- Documentación oficial o repos conocidos: OpenClaw, Ollama, Open WebUI, Next.js, Vercel, Docker, GitHub Actions, Playwright, Tailscale, Caddy, Ubuntu/systemd, Hikvision/Dahua cuando aplique.
+- O experiencia previa aportada por el usuario.
+- O comandos estándar y seguros (diagnóstico/lectura) que no rompan nada.
+
+REGLAS CRÍTICAS
+- No inventes soluciones.
+- No des comandos “probables” si no son estándar/seguros o no están verificados.
+- Si no hay base suficiente: pide datos concretos (logs/versión/config).
+- Diferencia claramente: (1) Hecho comprobado (2) Hipótesis razonable (3) Información que falta.
+- Evita sudo salvo imprescindible; si hace falta, indícalo y por qué.
+- No prometas que algo lo arregla si no está probado.
+- No menciones que esto lo escribió una IA.
+- Revisa y respeta lo que ya han respondido otros: si ya pidieron logs/versiones, NO repitas lo mismo; pide lo que falte o aclara el siguiente paso.
+
+DECISIÓN “TODOS LOS QUE TENGA RESPUESTA”
+- Si el issue NO trae señales mínimas (error/logs/versiones/pasos), tu “respuesta” debe ser pedir datos concretos (no proponer fixes).
+- Si hay datos suficientes, ofrece SOLO diagnóstico seguro + hipótesis marcada.
+
+FORMATO DE SALIDA (OBLIGATORIO)
+1. Nivel de seguridad: Alta / Media / Baja
+2. Base usada: (docs oficiales / repo / issue confirmado / experiencia previa) o “no hay base suficiente”
+3. Información que falta: lista concreta
+4. Respuesta lista para publicar: breve, natural, técnica
+5. Versión corta: 2-4 líneas
+          `.trim();
+
+          const input = `
+Issue title:
+${issueTitle}
+
+Issue body:
+${issueBody}
+
+Prior comments (what others already wrote):
+${priorComments || "(none)"}
+          `.trim();
+
+          const payload = JSON.stringify({
+            model: "gpt-5.5",
+            input: [
+              { role: "system", content: instructions },
+              { role: "user", content: input }
+            ]
+          });
+
+          const req = https.request(
+            {
+              hostname: "api.openai.com",
+              path: "/v1/responses",
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+                "Content-Length": Buffer.byteLength(payload),
+              },
+            },
+            (res) => {
+              let data = "";
+              res.on("data", (chunk) => (data += chunk));
+              res.on("end", () => {
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                  console.error("OpenAI error:", res.statusCode, data);
+                  process.exit(1);
+                }
+
+                const obj = JSON.parse(data);
+
+                // Responses API: easiest is output_text
+                let text = obj.output_text || "";
+                if (!text && Array.isArray(obj.output)) {
+                  for (const item of obj.output) {
+                    if (item?.type === "message" && Array.isArray(item.content)) {
+                      for (const c of item.content) {
+                        if (c?.type === "output_text" && c.text) text += c.text;
+                      }
+                    }
+                  }
+                }
+
+                // Write multiline output for next step
+                fs.appendFileSync(process.env.GITHUB_OUTPUT, `reply<<EOF\n${text}\nEOF\n`);
+              });
+            }
+          );
+
+          req.on("error", (e) => {
+            console.error(e);
+            process.exit(1);
+          });
+
+          req.write(payload);
+          req.end();
+          NODE
+
+      - name: Post comment
+        if: steps.gate.outputs.should_run == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = Number("${{ steps.gate.outputs.issue_number }}");
+            const reply = `${{ steps.gen.outputs.reply }}`.trim();
+
+            const marker = "<!-- duartec-auto-triage -->";
+            const body = `${marker}\n${reply}`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              body
+            });
