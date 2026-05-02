@@ -101,10 +101,47 @@ jobs:
             const haySenal = /error|exception|stack|trace|failed|fail|log|logs|version|versi[oó]n|ubuntu|windows|docker|compose|systemd|caddy|next\.js|vercel|ollama|openclaw|webui|playwright|tailscale|repro|steps|pasos/i.test(title + "\n" + body);
 
             // If not forced, require some signal or code fence
-            if (!forced && !(haySenal || hayCodigo)) {
-              core.setOutput("should_run", "false");
-              return;
-            }
+            // 0) Allowed tech gate (ONLY respond if the issue seems about allowed tech)
+// Add/remove keywords as you like.
+const allowedTech = [
+  { name: "OpenClaw", re: /\bopenclaw\b/i },
+  { name: "Ollama", re: /\bollama\b/i },
+  { name: "Open WebUI", re: /\bopen\s*webui\b|\bopen-webui\b|\bwebui\b/i },
+  { name: "Next.js", re: /\bnext\.?js\b|\bnextjs\b/i },
+  { name: "Vercel", re: /\bvercel\b/i },
+  { name: "Docker", re: /\bdocker\b|\bdockerfile\b|\bdocker-compose\b|\bcompose\b/i },
+  { name: "GitHub Actions", re: /\bgithub\s*actions\b|\bworkflow\b|\byml\b|\byaml\b/i },
+  { name: "Playwright", re: /\bplaywright\b/i },
+  { name: "Tailscale", re: /\btailscale\b|\btailscaled\b/i },
+  { name: "Caddy", re: /\bcaddy\b|\bcaddyfile\b/i },
+  { name: "Ubuntu/systemd", re: /\bubuntu\b|\bsystemd\b|\bsystemctl\b|\bjournalctl\b/i },
+  { name: "Hikvision", re: /\bhikvision\b|\bhik\b/i },
+  { name: "Dahua", re: /\bdahua\b/i },
+];
+
+const text = (title + "\n" + body);
+const matched = allowedTech.filter(t => t.re.test(text)).map(t => t.name);
+const isAllowed = matched.length > 0;
+
+// Minimal-signal gate (skip weak issues unless forced)
+const hayCodigo = body.includes("```");
+const haySenal = /error|exception|stack|trace|failed|fail|log|logs|version|versi[oó]n|repro|steps|pasos/i.test(text);
+
+// DECISION:
+// - If not forced: must be allowed-tech AND have minimal signals (or code fence)
+// - If forced (/triage): allow even if tech not detected, but keep it safe (the model will ask for info).
+if (!forced) {
+  if (!isAllowed) {
+    core.setOutput("should_run", "false");
+    return;
+  }
+  if (!(haySenal || hayCodigo)) {
+    core.setOutput("should_run", "false");
+    return;
+  }
+}
+
+core.setOutput("allowed_tech", matched.join(", "));
 
             core.setOutput("should_run", "true");
             core.setOutput("forced", forced ? "true" : "false");
