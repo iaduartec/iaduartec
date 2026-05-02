@@ -1,4 +1,4 @@
-name: Issue Auto Responder (Duartec Safe)
+name: Issue Auto Responder (Duartec Safe + Repo Context)
 
 on:
   issues:
@@ -18,8 +18,15 @@ concurrency:
 jobs:
   respond:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Gate + collect issue data
+      - name: Checkout repo (for docs context)
+        if: github.eventName != 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Gate + collect issue data + prior comments
         id: gate
         uses: actions/github-script@v7
         with:
@@ -34,32 +41,32 @@ jobs:
             } else if (eventName === "issue_comment") {
               issue = context.payload.issue;
               triggerCommentBody = (context.payload.comment?.body || "");
+            } else if (eventName === "workflow_dispatch") {
+              // Allow manual runs; but without issue context we cannot post.
+              core.setOutput("should_run", "false");
+              return;
             } else {
               core.setOutput("should_run", "false");
               return;
             }
 
-            // 1) Don't reply to bots (avoid loops)
+            // Avoid loops
             const authorType = issue.user?.type || "";
             if (authorType === "Bot") {
               core.setOutput("should_run", "false");
               return;
             }
 
-            // 2) For issue_comment: only run if a maintainer explicitly asks
-            // Trigger phrase: /triage
-            if (eventName === "issue_comment" && !triggerCommentBody.includes("/triage")) {
+            // For issue_comment: only run if explicitly asked
+            const forced = (eventName === "issue_comment" && triggerCommentBody.includes("/triage"));
+
+            // If locked, skip
+            if (issue.locked && !forced) {
               core.setOutput("should_run", "false");
               return;
             }
 
-            // 3) If locked, skip
-            if (issue.locked) {
-              core.setOutput("should_run", "false");
-              return;
-            }
-
-            // 4) Avoid duplicates: if we already posted, skip automatic runs
+            // Avoid duplicates (unless forced)
             const marker = "<!-- duartec-auto-triage -->";
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -69,33 +76,99 @@ jobs:
             });
 
             const already = comments.some(c => (c.body || "").includes(marker));
-            if (already && eventName === "issues") {
+            if (already && eventName === "issues" && !forced) {
               core.setOutput("should_run", "false");
               return;
             }
 
-            // Collect prior comments (what others wrote)
-            // Keep it short: last 12 comments (excluding our own marker ones)
-            const filtered = comments
+            // Build prior comments context (last 12, excluding our marker)
+            const prior = comments
               .filter(c => !(c.body || "").includes(marker))
               .slice(-12)
               .map(c => {
                 const user = c.user?.login || "unknown";
                 const created = c.created_at || "";
-                const body = (c.body || "").slice(0, 4000); // safety cap
+                const body = (c.body || "").slice(0, 4000);
                 return `- ${user} (${created}):\n${body}`;
               })
               .join("\n\n");
 
+            // Minimal-signal gate (skip “hola no funciona” issues unless forced)
+            // Signals: error/log/stack/trace/version/pasos + code fences
+            const title = issue.title || "";
+            const body = issue.body || "";
+            const hayCodigo = body.includes("```");
+            const haySenal = /error|exception|stack|trace|failed|fail|log|logs|version|versi[oó]n|ubuntu|windows|docker|compose|systemd|caddy|next\.js|vercel|ollama|openclaw|webui|playwright|tailscale|repro|steps|pasos/i.test(title + "\n" + body);
+
+            // If not forced, require some signal or code fence
+            if (!forced && !(haySenal || hayCodigo)) {
+              core.setOutput("should_run", "false");
+              return;
+            }
+
             core.setOutput("should_run", "true");
+            core.setOutput("forced", forced ? "true" : "false");
             core.setOutput("issue_number", String(issue.number));
-            core.setOutput("issue_title", issue.title || "");
-            core.setOutput("issue_body", issue.body || "");
-            core.setOutput("prior_comments", filtered);
+            core.setOutput("issue_title", title);
+            core.setOutput("issue_body", body);
+            core.setOutput("prior_comments", prior);
 
       - name: Stop if gated
         if: steps.gate.outputs.should_run != 'true'
-        run: echo "Gated - not responding."
+        run: echo "Gated - not responding (missing minimal signals)."
+
+      - name: Build repo context (README/docs/templates)
+        if: steps.gate.outputs.should_run == 'true'
+        id: repoctx
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+
+          // Files/globs (simple walk) – keep it small and relevant
+          const roots = [
+            "README.md","README.MD","README.txt","README",
+            "CONTRIBUTING.md","CONTRIBUTING.MD","SECURITY.md","CODE_OF_CONDUCT.md"
+          ];
+
+          function walk(dir, out=[]) {
+            if (!fs.existsSync(dir)) return out;
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const e of entries) {
+              const p = path.join(dir, e.name);
+              if (e.isDirectory()) walk(p, out);
+              else out.push(p);
+            }
+            return out;
+          }
+
+          const files = new Set();
+          for (const f of roots) if (fs.existsSync(f)) files.add(f);
+
+          // docs/**/*.md
+          for (const p of walk("docs")) if (p.toLowerCase().endsWith(".md")) files.add(p);
+
+          // .github/ISSUE_TEMPLATE/**
+          for (const p of walk(path.join(".github","ISSUE_TEMPLATE"))) files.add(p);
+
+          // Build context with hard size cap
+          const MAX_CHARS = 18000;
+          let buf = "";
+          const sorted = Array.from(files).sort();
+
+          for (const f of sorted) {
+            try {
+              const content = fs.readFileSync(f, "utf8");
+              const snippet = content.slice(0, 6000); // per-file cap
+              const block = `\n\n===== FILE: ${f} =====\n${snippet}\n`;
+              if ((buf.length + block.length) > MAX_CHARS) break;
+              buf += block;
+            } catch {}
+          }
+
+          fs.writeFileSync("repo_context.txt", buf || "(no repo context files found)");
+          console.log("Repo context chars:", (buf || "").length);
+          NODE
 
       - name: Generate reply (OpenAI Responses API)
         if: steps.gate.outputs.should_run == 'true'
@@ -105,6 +178,7 @@ jobs:
           ISSUE_TITLE: ${{ steps.gate.outputs.issue_title }}
           ISSUE_BODY: ${{ steps.gate.outputs.issue_body }}
           PRIOR_COMMENTS: ${{ steps.gate.outputs.prior_comments }}
+          FORCED: ${{ steps.gate.outputs.forced }}
         run: |
           node <<'NODE'
           const https = require("https");
@@ -113,6 +187,11 @@ jobs:
           const issueTitle = process.env.ISSUE_TITLE || "";
           const issueBody = process.env.ISSUE_BODY || "";
           const priorComments = process.env.PRIOR_COMMENTS || "";
+          const forced = process.env.FORCED === "true";
+
+          const repoContext = fs.existsSync("repo_context.txt")
+            ? fs.readFileSync("repo_context.txt", "utf8")
+            : "(repo context not available)";
 
           const instructions = `
 Eres asistente técnico para responder GitHub Issues/Discussions.
@@ -131,11 +210,13 @@ REGLAS CRÍTICAS
 - Evita sudo salvo imprescindible; si hace falta, indícalo y por qué.
 - No prometas que algo lo arregla si no está probado.
 - No menciones que esto lo escribió una IA.
-- Revisa y respeta lo que ya han respondido otros: si ya pidieron logs/versiones, NO repitas lo mismo; pide lo que falte o aclara el siguiente paso.
+- Revisa y respeta lo que ya han respondido otros: no repitas lo mismo; añade el siguiente paso o pide solo lo que falte.
+- Usa el “Repo context” como fuente prioritaria SI aplica al caso.
 
-DECISIÓN “TODOS LOS QUE TENGA RESPUESTA”
-- Si el issue NO trae señales mínimas (error/logs/versiones/pasos), tu “respuesta” debe ser pedir datos concretos (no proponer fixes).
-- Si hay datos suficientes, ofrece SOLO diagnóstico seguro + hipótesis marcada.
+POLÍTICA DE RESPUESTA
+- Si no hay señales suficientes en el issue, tu respuesta debe ser pedir datos concretos (pero si ya lo pidieron en comentarios, no repitas; pide lo que falta).
+- No incluyas enlaces inventados. Si citas fuente, referencia: "Documentación oficial de X" o "Archivo del repo: <ruta>".
+- Mantén la respuesta breve y publicable.
 
 FORMATO DE SALIDA (OBLIGATORIO)
 1. Nivel de seguridad: Alta / Media / Baja
@@ -154,6 +235,9 @@ ${issueBody}
 
 Prior comments (what others already wrote):
 ${priorComments || "(none)"}
+
+Repo context (selected files from this repository):
+${repoContext}
           `.trim();
 
           const payload = JSON.stringify({
@@ -185,9 +269,8 @@ ${priorComments || "(none)"}
                 }
 
                 const obj = JSON.parse(data);
-
-                // Responses API: easiest is output_text
                 let text = obj.output_text || "";
+
                 if (!text && Array.isArray(obj.output)) {
                   for (const item of obj.output) {
                     if (item?.type === "message" && Array.isArray(item.content)) {
@@ -198,7 +281,6 @@ ${priorComments || "(none)"}
                   }
                 }
 
-                // Write multiline output for next step
                 fs.appendFileSync(process.env.GITHUB_OUTPUT, `reply<<EOF\n${text}\nEOF\n`);
               });
             }
