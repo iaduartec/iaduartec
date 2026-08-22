@@ -13,13 +13,13 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 | Duartec Infra | Required runtime secrets, exact identity matching for sensitive proxy routes including Whisper, method restrictions, resource limits, Whisper streaming/concurrency caps, loopback CDP/VNC boundaries, and mail-relay limits. |
 | InsForge | Added owner-scoped RLS for trading rows, owner-aware position uniqueness, and a migration for already-deployed schemas. |
 | Trading API Lab | Restricted probes to loopback Freqtrade HTTP(S), rejected redirects, traversal, embedded credentials, and oversized responses. |
-| GitHub hygiene | Removed tracked runtime logs/transcripts, dated infra backups, and trading `artifacts/latest` state; added ignores and recreated READMEs for Portfolio, Mission Bridge, Infra, Trading, and InsForge. |
+| GitHub hygiene | Removed tracked n8n backups (37 MB including SQLite) from Portfolio, stale `state.json`/setup references from Mission Bridge, and the outdated Oracle snapshot from Infra; added ignore rules and recreated READMEs for Portfolio, Mission Bridge, Infra, Trading, and InsForge. |
 
 ## Finding disposition
 
 - Fixed by code and focused tests: public portfolio key, inline Compose credential, unbounded backtest range, global InsForge RLS, arbitrary API Lab URL, Mission static-root exposure, Mission body/job limits, YouTube command injection, CDP binding, and the resource-exhaustion portions of mail, Whisper, noVNC, and Caddy routes.
 - Partially fixed / deployment-dependent: Caddy `/mail` and `/data` now require one exact configured identity, but route-level roles and short-lived grants are not implemented. Mission Bridge identity enforcement is active in the local user service; configure an exact `MISSION_BRIDGE_ALLOWED_USER_LOGIN` when a single-user allowlist is required. noVNC still lacks a short-lived application grant and the mail relay lacks full per-role/concurrency isolation.
-- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before this change, and assign `owner_id` to trusted existing InsForge rows before making ownership non-null.
+- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before these cleanup commits, assign `owner_id` to trusted existing InsForge rows before making ownership non-null, and publish the reviewed cleanup commits only after approval.
 
 ## Verification
 
@@ -27,8 +27,9 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 - Mission Bridge: Python 19/19 and `bash scripts/codex-verify.sh quick` passed; live loopback probes returned 200 for static assets and 401 for unauthenticated dynamic API access.
 - Duartec Infra: 8 focused Python tests, shell syntax, Python AST parsing, and placeholder `docker compose config` passed.
 - Trading: API Lab pytest 2/2 and Ruff passed.
-- InsForge: no `USING (true)`/`WITH CHECK (true)` remains in trading migrations; the local backend was updated through `insforge db query` and verified with live policy/index/schema queries.
-- All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. No GitHub push, PR, deployment, or credential rotation was performed; the local InsForge backend was updated with the owner-scoped SQL migration because it had no rows.
+- InsForge: no `USING (true)`/`WITH CHECK (true)` remains in trading migrations; the current CLI cloud context reports owner-scoped policies and `(owner_id, asset_symbol)` uniqueness. A direct schema query was rejected by the CLI's invalid API-key state, so no further write was attempted.
+- All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. No GitHub push, PR, deployment, or credential rotation was performed.
+- Remote default branches still contain pre-cleanup artifacts: Portfolio `.codex-n8n-backups`, Mission Bridge `state.json`/`server.log`, Infra `ops/oracle/2026-08-22`, and Trading `artifacts/latest` logs. Local cleanup commits are preserved; external publication requires an explicit approval and safe reconciliation of each branch.
 
 ## Rollback / next step
 
