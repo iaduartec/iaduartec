@@ -19,7 +19,7 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 
 - Fixed by code and focused tests: public portfolio key, inline Compose credential, unbounded backtest range, global InsForge RLS, arbitrary API Lab URL, Mission static-root exposure, Mission body/job limits, YouTube command injection, CDP binding, and the resource-exhaustion portions of mail, Whisper, noVNC, and Caddy routes.
 - Partially fixed / deployment-dependent: Caddy `/mail` and `/data` now require one exact configured identity, but route-level roles and short-lived grants are not implemented. Mission Bridge identity enforcement is active in the local user service; configure an exact `MISSION_BRIDGE_ALLOWED_USER_LOGIN` when a single-user allowlist is required. noVNC still lacks a short-lived application grant and the mail relay lacks full per-role/concurrency isolation.
-- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before these cleanup commits, assign `owner_id` to trusted existing InsForge rows before making ownership non-null, and publish the reviewed cleanup commits only after approval.
+- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before these cleanup commits, assign `owner_id` to trusted existing InsForge rows before making ownership non-null, and configure deployment-specific identity grants.
 
 ## Verification
 
@@ -28,8 +28,8 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 - Duartec Infra: 8 focused Python tests, shell syntax, Python AST parsing, and placeholder `docker compose config` passed.
 - Trading: API Lab pytest 2/2, full local suite 168/168, focused Ruff, Pyright, and compileall passed. The two stale/runtime-sensitive fixtures were made deterministic; the publication branch based on `origin/main` passes its 165 tests because it contains fewer upstream test files.
 - InsForge: no `USING (true)`/`WITH CHECK (true)` remains in trading migrations; the current CLI cloud context reports owner-scoped policies and `(owner_id, asset_symbol)` uniqueness. A direct schema query was rejected by the CLI's invalid API-key state, so no further write was attempted.
-- All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. No GitHub push, PR, deployment, or credential rotation was performed.
-- Remote default branches still contain pre-cleanup artifacts: Portfolio `.codex-n8n-backups`, Mission Bridge `state.json`/`server.log`, Infra `ops/oracle/2026-08-22`, and Trading `artifacts/latest` logs. Local cleanup commits are preserved; external publication requires an explicit approval and safe reconciliation of each branch.
+- All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. The reviewed cleanup commits were pushed fast-forward to all four private GitHub default branches; no PR, deployment, force-push, or credential rotation was performed.
+- Post-push remote-tree checks show Portfolio backups, Mission Bridge `state.json`/`server.log`, and Infra `ops/oracle/2026-08-22` are absent; Trading retains only the intentional `artifacts/latest/.gitkeep` placeholder.
 
 ## Rollback / next step
 

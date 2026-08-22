@@ -6,10 +6,10 @@ Scope: current local `main` checkouts and their fetched `origin/main` refs, revi
 
 | Repository | Local result | Remote result | Action |
 |---|---|---|---|
-| `mission-bridge` | Removed stale `state.json`, corrected setup docs/verifier, and ignore rules; service checks static `200` and dynamic anonymous `401`. | `origin/main` still contains `state.json` and `server.log`. | Local commit `419701b`; remote cleanup still requires reviewed publication. |
-| `duartec-infra` | Removed the 2026-08-22 Oracle snapshot (including stale Caddy and credential-bearing Compose copy), added an Oracle snapshot ignore, and corrected its documentation. | `origin/main` still contains `ops/oracle/2026-08-22/`. | Local commit `4837f09`; remote cleanup still requires reviewed publication. |
-| `projects/trading` | `artifacts/latest` runtime outputs remain removed/ignored; API Lab and local full suite pass (`168/168`). A local `codex/security-publication` branch rebased the cleanup onto `origin/main` without conflicts and passes its `165` tests. | `origin/main` still contains old `artifacts/latest` logs. | Publication branch `codex/security-publication` at `680e8bf`; remote cleanup still requires reviewed publication. |
-| `portfolio-repo` | Removed 37 MB of tracked `.codex-n8n-backups` (SQLite plus JSON exports), added an explicit ignore, and kept placeholder-only `.env.example`. | `origin/main` still contains all eight backup blobs. | Local commits `68e5dea` and `30b8599`; rotate any historical credentials before publication. |
+| `mission-bridge` | Removed stale `state.json`, corrected setup docs/verifier, and ignore rules; service checks static `200` and dynamic anonymous `401`. | `origin/main` no longer contains `state.json` or `server.log`. | Published fast-forward at `419701b`. |
+| `duartec-infra` | Removed the Oracle snapshot, added an Oracle snapshot ignore, corrected documentation, and removed the unused root monolithic `Caddyfile`. | `origin/main` no longer contains `ops/oracle/2026-08-22/` or the root `Caddyfile`. | Published fast-forward at `a3d9d0b`. |
+| `projects/trading` | `artifacts/latest` runtime outputs remain removed/ignored; API Lab and local full suite pass (`168/168`). | `origin/main` retains only `artifacts/latest/.gitkeep`; no logs/runtime outputs remain. | Published fast-forward at `680e8bf`. |
+| `portfolio-repo` | Removed 37 MB of tracked `.codex-n8n-backups` (SQLite plus JSON exports), added an explicit ignore, and kept placeholder-only `.env.example`. | `origin/main` no longer contains the eight backup blobs. | Published fast-forward at `30b8599`; rotate any historical credentials before deployment. |
 | root/InsForge | READMEs/migrations and owner-scoped policies are documented; no runtime data tracked. | Cloud CLI context currently reports owner-scoped policies/indexes; direct schema query was rejected by invalid API-key state. | No further backend write attempted. |
 
 ## Deletion safety
@@ -18,4 +18,4 @@ The local cleanup deliberately removed only reproducible runtime outputs, stale 
 
 ## Publication gate
 
-Before any push or PR, reconcile each local branch against its fetched `origin/main` without reset, run explicit-path `git diff --check`, tracked-file secret scanning, repository-native tests, and review `git diff --stat`/`git diff --name-status`. The four remotes are private, but they still retain the pre-cleanup files. No push, merge, force-push, or history rewrite is authorized by this report.
+The four private remotes were reconciled and updated with fast-forward pushes from the reviewed `codex/security-publication` branches. No force-push or history rewrite was used. Historical Git objects may still contain removed blobs; credential rotation remains an operational follow-up.
