@@ -18,4 +18,4 @@ The local cleanup deliberately removed only reproducible runtime outputs, stale 
 
 ## Publication gate
 
-The four private remotes were reconciled and updated with fast-forward pushes from the reviewed `codex/security-publication` branches. The public root repository `iaduartec/iaduartec` was also fast-forwarded to `5864d2c87` with the reviewed InsForge/docs changes. No force-push or history rewrite was used. Historical Git objects may still contain removed blobs; credential rotation remains an operational follow-up.
+The four private remotes were reconciled and updated with fast-forward pushes from the reviewed `codex/security-publication` branches. The public root repository `iaduartec/iaduartec` was also fast-forwarded to `d1f6ca08d` with the reviewed InsForge/docs changes. No force-push or history rewrite was used. Historical Git objects may still contain removed blobs; credential rotation remains an operational follow-up.
