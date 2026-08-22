@@ -8,6 +8,15 @@ ALTER TABLE public.trading_trades
 ALTER TABLE public.position_ots
     ADD COLUMN IF NOT EXISTS owner_id UUID REFERENCES auth.users(id);
 
+ALTER TABLE public.trading_trades ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.position_ots ENABLE ROW LEVEL SECURITY;
+
+-- The tables are private application data.  Remove the default API role's
+-- table privileges before granting the least-privilege authenticated surface.
+REVOKE ALL ON TABLE public.trading_trades, public.position_ots FROM anon;
+REVOKE DELETE ON TABLE public.trading_trades, public.position_ots FROM authenticated;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.trading_trades, public.position_ots TO authenticated;
+
 ALTER TABLE public.position_ots
     DROP CONSTRAINT IF EXISTS position_ots_asset_symbol_key;
 
@@ -22,6 +31,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS position_ots_owner_asset_symbol_uidx
 
 DROP POLICY IF EXISTS trading_trades_authenticated_read ON public.trading_trades;
 DROP POLICY IF EXISTS trading_trades_authenticated_write ON public.trading_trades;
+DROP POLICY IF EXISTS trading_trades_authenticated_update ON public.trading_trades;
 DROP POLICY IF EXISTS position_ots_authenticated_access ON public.position_ots;
 
 CREATE POLICY trading_trades_authenticated_read
