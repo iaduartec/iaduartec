@@ -5,8 +5,8 @@ Migraciones y configuración mínima del backend InsForge usado por las integrac
 ## Migraciones
 
 ```bash
-insforge migrations list
-insforge migrations apply
+npx -y @insforge/cli db migrations list
+npx -y @insforge/cli db migrations up
 ```
 
 La migración inicial crea `trading_trades` y `position_ots`. La migración de ownership añade `owner_id` y reemplaza las políticas globales por predicados `auth.uid()`. Las filas sin propietario quedan inaccesibles hasta que un proceso confiable las asigne explícitamente.

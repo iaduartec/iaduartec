@@ -8,11 +8,17 @@ ALTER TABLE public.trading_trades
 ALTER TABLE public.position_ots
     ADD COLUMN IF NOT EXISTS owner_id UUID REFERENCES auth.users(id);
 
+ALTER TABLE public.position_ots
+    DROP CONSTRAINT IF EXISTS position_ots_asset_symbol_key;
+
 CREATE INDEX IF NOT EXISTS trading_trades_owner_id_idx
     ON public.trading_trades (owner_id);
 
 CREATE INDEX IF NOT EXISTS position_ots_owner_id_idx
     ON public.position_ots (owner_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS position_ots_owner_asset_symbol_uidx
+    ON public.position_ots (owner_id, asset_symbol);
 
 DROP POLICY IF EXISTS trading_trades_authenticated_read ON public.trading_trades;
 DROP POLICY IF EXISTS trading_trades_authenticated_write ON public.trading_trades;

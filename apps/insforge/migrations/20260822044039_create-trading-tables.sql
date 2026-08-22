@@ -13,13 +13,16 @@ CREATE TABLE IF NOT EXISTS public.trading_trades (
 CREATE TABLE IF NOT EXISTS public.position_ots (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID REFERENCES auth.users(id),
-    asset_symbol TEXT UNIQUE NOT NULL,
+    asset_symbol TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'AT_RISK', 'CLOSED')),
     avg_price NUMERIC NOT NULL,
     total_qty NUMERIC NOT NULL,
     ai_post_mortem TEXT,
     last_checked_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS position_ots_owner_asset_symbol_uidx
+    ON public.position_ots (owner_id, asset_symbol);
 
 GRANT SELECT, INSERT, UPDATE ON public.trading_trades TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.position_ots TO authenticated;
