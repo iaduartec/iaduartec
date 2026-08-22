@@ -1,4 +1,4 @@
-import { createAdminClient } from "https://esm.sh/@insforge/sdk@1.4.3";
+import { createAdminClient } from "npm:@insforge/sdk";
 
 const insforge = createAdminClient({
   baseUrl: Deno.env.get("INSFORGE_URL")!,
