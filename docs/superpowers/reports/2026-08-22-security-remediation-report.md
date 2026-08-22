@@ -26,7 +26,7 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 - Portfolio: 12 focused Node tests passed; `pnpm type-check` and `pnpm lint` passed.
 - Mission Bridge: Python 19/19 and `bash scripts/codex-verify.sh quick` passed; live loopback probes returned 200 for static assets and 401 for unauthenticated dynamic API access.
 - Duartec Infra: 8 focused Python tests, shell syntax, Python AST parsing, and placeholder `docker compose config` passed.
-- Trading: API Lab pytest 2/2 and Ruff passed.
+- Trading: API Lab pytest 2/2 and Ruff passed; full suite reached 166/168 with two existing fixture/environment-sensitive failures (historical Yahoo timestamps and live Freqtrade state), so the README now distinguishes the security-boundary gate from the full runtime suite.
 - InsForge: no `USING (true)`/`WITH CHECK (true)` remains in trading migrations; the current CLI cloud context reports owner-scoped policies and `(owner_id, asset_symbol)` uniqueness. A direct schema query was rejected by the CLI's invalid API-key state, so no further write was attempted.
 - All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. No GitHub push, PR, deployment, or credential rotation was performed.
 - Remote default branches still contain pre-cleanup artifacts: Portfolio `.codex-n8n-backups`, Mission Bridge `state.json`/`server.log`, Infra `ops/oracle/2026-08-22`, and Trading `artifacts/latest` logs. Local cleanup commits are preserved; external publication requires an explicit approval and safe reconciliation of each branch.
