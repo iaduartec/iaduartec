@@ -19,7 +19,7 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 
 - Fixed by code and focused tests: public portfolio key, inline Compose credential, unbounded backtest range, global InsForge RLS, arbitrary API Lab URL, Mission static-root exposure, Mission body/job limits, YouTube command injection, CDP binding, and the resource-exhaustion portions of mail, Whisper, noVNC, and Caddy routes.
 - Partially fixed / deployment-dependent: Caddy route-level identities, noVNC's password and Mission Bridge's exact allowlist require deployment values; the application must be configured with approved principals before restarting those services. Short-lived noVNC grants and full backend role propagation remain future hardening beyond this repository boundary.
-- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before these cleanup commits, assign `owner_id` to trusted existing InsForge rows before making ownership non-null, and configure deployment-specific identity grants.
+- Operational follow-up: rotate any historical `PORTFOLIO_API_KEY` or other credentials that may have been exposed before these cleanup commits, assign `owner_id` to trusted existing InsForge rows before making ownership non-null, and provision deployment-specific identity/VNC secret values before a future Compose restart. The stale invalid Mission Bridge portfolio key was removed from the local systemd override.
 
 ## Verification
 
@@ -28,7 +28,7 @@ Scope: `/home/ubuntu` snapshot, 16 findings (2 high, 11 medium, 3 low), partial 
 - Duartec Infra: 8 focused Python tests, shell syntax, Python AST parsing, Caddy validation, and placeholder `docker compose config` passed.
 - Trading: API Lab pytest 2/2, full local suite 168/168 after reconciling local and published `main`, focused Ruff, Pyright, and compileall passed. The two stale/runtime-sensitive fixtures were made deterministic; no local commits were discarded during synchronization.
 - InsForge: no `USING (true)`/`WITH CHECK (true)` remains in trading migrations; the current CLI cloud context reports owner-scoped policies and `(owner_id, asset_symbol)` uniqueness. A direct schema query was rejected by the CLI's invalid API-key state, so no further write was attempted.
-- All integrated local checkouts are on `main` with no tracked working-tree changes. Local Mission Bridge was restarted after inspecting status/logs to activate loopback binding and identity enforcement. The reviewed cleanup commits and the follow-up hardening were pushed fast-forward to all four private GitHub default branches; no PR, deployment restart, force-push, or credential rotation was performed.
+- All integrated local checkouts are on `main` with no tracked working-tree changes. Mission Bridge was restarted after removing its stale invalid server key; it is active, serves `/canvas/` with `200`, and rejects anonymous dynamic access with `401`. The reviewed cleanup commits and follow-up hardening were pushed fast-forward to all four private GitHub default branches; no force-push or history rewrite was performed.
 - Post-push remote-tree checks show Portfolio backups, Mission Bridge `state.json`/`server.log`, and Infra `ops/oracle/2026-08-22`, the root Caddyfile, and the obsolete proposal are absent; Trading retains only the intentional `artifacts/latest/.gitkeep` placeholder.
 
 ## Rollback / next step
