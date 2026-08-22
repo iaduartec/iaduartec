@@ -19,16 +19,11 @@ CREATE TABLE IF NOT EXISTS public.position_ots (
     last_checked_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-GRANT INSERT ON public.trading_trades TO anon;
 GRANT SELECT, INSERT, UPDATE ON public.trading_trades TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.position_ots TO authenticated;
 
 ALTER TABLE public.trading_trades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.position_ots ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY trading_trades_anon_insert
-    ON public.trading_trades FOR INSERT TO anon
-    WITH CHECK (true);
 
 CREATE POLICY trading_trades_authenticated_read
     ON public.trading_trades FOR SELECT TO authenticated

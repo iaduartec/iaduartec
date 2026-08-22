@@ -1,8 +1,8 @@
-import { createClient } from "https://esm.sh/@insforge/sdk@latest";
+import { createAdminClient } from "https://esm.sh/@insforge/sdk@1.4.3";
 
-const insforge = createClient({
+const insforge = createAdminClient({
   baseUrl: Deno.env.get("INSFORGE_URL")!,
-  anonKey: Deno.env.get("INSFORGE_API_KEY")!
+  apiKey: Deno.env.get("INSFORGE_API_KEY")!
 });
 
 const webhookSecret = Deno.env.get("REVOLUT_WEBHOOK_SECRET");
