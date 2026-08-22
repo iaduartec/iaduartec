@@ -1,21 +1,21 @@
 # GitHub publication audit — 2026-08-22
 
-Scope: clean branches at the scan target revision, reviewed with `git ls-files`, repository history, references, ignore rules, and secret-name/content scans. Values of credentials and private data are intentionally omitted.
+Scope: current local `main` checkouts and their fetched `origin/main` refs, reviewed with `git ls-files`, remote trees, repository history, references, ignore rules, README commands, and secret-name/content scans. Values of credentials and private data are intentionally omitted.
 
 ## Findings
 
-| Repository | Tracked content | Evidence | Action in remediation branch |
+| Repository | Local result | Remote result | Action |
 |---|---|---|---|
-| `mission-bridge` | `server.log` and three `transcript-runtime*` files | Runtime outputs/captions; last repository movement was the June 2026 migration; no application source references them; `.gitignore` already excludes runtime/output state but not these four legacy files. | Remove from tracking and add explicit runtime/caption ignores. |
-| `duartec-infra` | 13 `*.bak*` Caddy, Compose, media and workflow snapshots | Every candidate is a dated backup; current counterparts exist; no non-backup source references them; `.gitignore` already says `*.bak`/`*.bak.*`. | Remove stale backups from tracking; preserve current files. |
-| `projects/trading` | `artifacts/latest/*` runtime JSON/log/PID files and generated reports | Files contain dated runtime state and generated research output; source scripts regenerate/read the directory; most runtime names are already individually ignored, indicating accidental historical tracking. | Remove tracked runtime outputs and ignore the whole directory except a keep-file; retain generator scripts and notebooks. Reports remain until their generated-vs-curated ownership is confirmed in the README task. |
-| `portfolio-repo` | `.env.example` only among secret-like names | It contains placeholders and is intended documentation; no credential value found in tracked file inventory. | Keep, rewrite examples to match server-only auth after the P1 fix. |
-| root/InsForge | no README and no secret-like tracked filenames | Only migration/config source is tracked under `apps/insforge`; no runtime data or environment file is tracked. | Add a focused README with migration and secret-handling instructions. |
+| `mission-bridge` | Removed stale `state.json`, corrected setup docs/verifier, and ignore rules; service checks static `200` and dynamic anonymous `401`. | `origin/main` still contains `state.json` and `server.log`. | Local commit `419701b`; remote cleanup still requires reviewed publication. |
+| `duartec-infra` | Removed the 2026-08-22 Oracle snapshot (including stale Caddy and credential-bearing Compose copy), added an Oracle snapshot ignore, and corrected its documentation. | `origin/main` still contains `ops/oracle/2026-08-22/`. | Local commit `4837f09`; remote cleanup still requires reviewed publication. |
+| `projects/trading` | `artifacts/latest` runtime outputs remain removed/ignored; security API Lab gate passes. Full suite is 166/168 because two existing fixture/runtime-sensitive tests need an isolated Freqtrade/data window. | `origin/main` still contains old `artifacts/latest` logs. | Local commits `9d8c258` and `fe312eb`; remote cleanup still requires reviewed publication. |
+| `portfolio-repo` | Removed 37 MB of tracked `.codex-n8n-backups` (SQLite plus JSON exports), added an explicit ignore, and kept placeholder-only `.env.example`. | `origin/main` still contains all eight backup blobs. | Local commits `68e5dea` and `30b8599`; rotate any historical credentials before publication. |
+| root/InsForge | READMEs/migrations and owner-scoped policies are documented; no runtime data tracked. | Cloud CLI context currently reports owner-scoped policies/indexes; direct schema query was rejected by invalid API-key state. | No further backend write attempted. |
 
 ## Deletion safety
 
-No backups, databases, cookies, raw portfolio imports, or production state will be deleted. The candidate deletions are reproducible runtime outputs or dated backup copies with current counterparts and no source references. Each deletion is confined to a remediation branch/worktree and can be recovered from Git history until any later external publication decision.
+The local cleanup deliberately removed only reproducible runtime outputs, stale state, and dated configuration copies from the working trees; Git history still retains the old blobs until an explicitly approved history rewrite or repository-level purge. No production service data, cookies, current credentials, or live volumes were touched.
 
 ## Publication gate
 
-Before any push or PR, run explicit-path `git diff --check`, tracked-file secret scanning, repository-native tests, and a review of `git diff --stat`/`git diff --name-status`. No push, merge, or PR is authorized by this report.
+Before any push or PR, reconcile each local branch against its fetched `origin/main` without reset, run explicit-path `git diff --check`, tracked-file secret scanning, repository-native tests, and review `git diff --stat`/`git diff --name-status`. The four remotes are private, but they still retain the pre-cleanup files. No push, merge, force-push, or history rewrite is authorized by this report.
