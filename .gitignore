@@ -1,0 +1,206 @@
+.0dai/
+ai/manifest/codebase-map.json
+ai/manifest/applied-lock.json
+ai/manifest/audit.jsonl
+ai/manifest/wal.jsonl
+ai/.backups/
+ai/feedback/.usage_stats.json
+ai/feedback/.last_push
+ai/feedback/.session_count
+ai/swarm/active/
+ai/swarm/done/
+ai/swarm/activity.jsonl
+ai/swarm/budget.json
+
+# --- OS & App Cache / Config Directories ---
+.cache/
+.config/
+.local/
+.npm/
+.nvm/
+.pki/
+.ssh/
+.gnupg/
+.mozilla/
+.docker/
+.oci/
+.vscode/
+.idea/
+.venvs/
+.venv/
+.bun/
+.playwright-cli/
+.worktrees/
+.warp/
+
+# --- AI & Agent System Directories ---
+.agents/
+.codex/
+.gemini/
+.engram/
+.antigravity-server/
+.antigravity_cockpit/
+.0dai-editor/
+.roo/
+.qoder/
+.qwen/
+.superpowers/
+.step/
+.trae/
+.opencode/
+.codeium/
+.kilocode/
+.augment/
+.claude/
+.openclaw/
+.openclaw-rescue/
+.insforge/
+.vercel/
+.ollama/
+.streamlit/
+.githooks/
+
+# --- Garbage Files / Cache Files ---
+%USERPROFILE%Desktop
+-t
+*cookies*.txt
+*.log
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# --- Secrets / Local Credentials ---
+.env
+.env.*
+*.env
+*.env.*
+.git-credentials
+.webui_secret_key
+credentials.json
+auth.json
+*token*
+*secret*
+
+# --- Node & Dependencies ---
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+# --- System & Application Configs ---
+snap/
+.vscode-server/
+.lesshst
+.viminfo
+.wget-hsts
+.bash_history*
+
+# --- Shell Leak / Temp Garbage Files ---
+[[]
+[}]
+break
+case
+done
+echo
+else
+esac
+eval
+export
+exports
+fi
+function
+if
+local
+return
+shift
+source
+sudo
+then
+unset
+wait
+*=
+*PS1*
+*warp*
+*WARP*
+__bp_*
+_warp_*
+init_shell*
+PS1=*
+ORIGINAL_PS1*
+SAVED_PS1*
+PROMPT_COMMAND*
+READLINE_LINE*
+WARP_HONOR_PS1*
+ARGS[0]*
+IFS=*
+vi_mode_enabled*
+os_category*
+rcfiles_start_time*
+"DUARTEC\n"
+
+# --- Backups & Tarballs ---
+*.tar
+*.tar.gz
+*.zip
+*backup*
+*backups*
+config.toml_fixed
+
+# --- Reports & Session Markdown files ---
+oracle-cleanup-report-*
+oracle-cleanup-audit-*/
+reports/
+diagnostico-*
+session-ses_*.md
+*.vtt
+
+# >>> duartec-control-plane-ignore >>>
+# Secrets / credentials
+.env
+.env.*
+.netrc
+.n8n-cli/config.json
+.git-credentials
+yt-cookies.txt
+yt-cookies.txt.*
+secrets/
+runtime/
+
+# Runtime / generated logs
+logs/
+maintenance-logs/
+novnc-youtube-logs/
+novnc-youtube-99-logs/
+*.log
+
+# Large local captures
+*.png
+*.webp
+*.mp4
+*.ogg
+
+# JS/Python build noise
+node_modules/
+.next/
+dist/
+build/
+__pycache__/
+.pytest_cache/
+.venv/
+.venvs/
+# <<< duartec-control-plane-ignore <<<
+# CocoIndex Code (ccc)
+/.cocoindex_code/
+
+# Local language toolchains and package stores
+/.cargo/
+/.rustup/
+/.pnpm-store/
+
+# Control-plane scratch space
+/tmp/
+
+# Local language toolchain caches and generated scratch workspaces
+/go/pkg/mod/
+/go/pkg/sumdb/
+/snake-pentagon/

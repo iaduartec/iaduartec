@@ -1,0 +1,41 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@2026.7.10",
+        "."
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@2026.7.4"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@4.0.3"
+      ]
+    },
+    "0dai": {
+      "command": "python3",
+      "args": [
+        "scripts/mcp_server.py",
+        "--target",
+        "/home/ubuntu"
+      ],
+      "env": {
+        "ODAI_PROJECT_PATH": "/home/ubuntu"
+      }
+    },
+    "claude.ai 0dai": {
+      "type": "http",
+      "url": "https://mcp.0dai.dev/mcp"
+    }
+  }
+}
