@@ -22,6 +22,9 @@ services:
   postgrest:
     image: postgrest/postgrest:v12.2.12
 
+    ports:
+      - "127.0.0.1:3002:3000"
+
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/${POSTGRES_DB:-insforge}
@@ -51,6 +54,9 @@ services:
       dockerfile: Dockerfile.insforge-redacted
 
     working_dir: /app
+    ports:
+      - "127.0.0.1:7130:7130"
+      - "127.0.0.1:7131:7131"
     depends_on:
       postgres:
         condition: service_healthy

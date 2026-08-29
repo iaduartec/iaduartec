@@ -1,0 +1,14 @@
+import{$ as e,B as t,E as n,F as r,O as i,P as a,S as o,T as s,U as c,V as l,W as u,X as d,Z as f,b as p,d as m,f as h,h as g,w as _}from"../chunks/BYPFN29E.js";import"../chunks/xihTtKlq.js";var v=_(o(`<link rel="canonical" href="https://duartec.com/hub-v2" class="svelte-12qhfyh"/> <meta name="description" content="Sergio's operational hub — a neon-glass showcase of Sergio's apps and live metrics." class="svelte-12qhfyh"/> <meta property="og:title" content="Hub operativo de Sergio" class="svelte-12qhfyh"/> <meta property="og:description" content="A neon-glass showcase of Sergio's apps, infrastructure, and live metrics." class="svelte-12qhfyh"/> <meta property="og:image" content="https://duartec.com/hub-v2/og-image.svg" class="svelte-12qhfyh"/> <meta property="og:image:width" content="1200" class="svelte-12qhfyh"/> <meta property="og:image:height" content="630" class="svelte-12qhfyh"/> <meta property="og:image:type" content="image/svg+xml" class="svelte-12qhfyh"/> <meta name="twitter:card" content="summary_large_image" class="svelte-12qhfyh"/> <meta name="twitter:title" content="Hub operativo de Sergio" class="svelte-12qhfyh"/> <meta name="twitter:description" content="A neon-glass showcase of Sergio's apps, infrastructure, and live metrics." class="svelte-12qhfyh"/> <meta name="twitter:image" content="https://duartec.com/hub-v2/og-image.svg" class="svelte-12qhfyh"/> <script type="application/ld+json" class="svelte-12qhfyh">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"name": "Hub operativo de Sergio",
+			"url": "https://duartec.com/hub-v2",
+			"description": "A neon-glass showcase of Sergio's apps, infrastructure, and live metrics.",
+			"potentialAction": {
+				"@type": "SearchAction",
+				"target": "https://duartec.com/hub-v2/?q={search_term_string}",
+				"query-input": "required name=search_term_string"
+			}
+		}
+	<\/script>`,1)),y=o(`<a class="skip-link svelte-12qhfyh" href="#main-content">Skip to main content</a> <!> <button type="button" aria-label="Back to top"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svelte-12qhfyh"><polyline points="18 15 12 9 6 15" class="svelte-12qhfyh"></polyline></svg></button>`,1);function b(o,s){f(s,!0);let _=u(!1),b=u(!1),x=null;function S(){c(_,window.scrollY>400),c(b,!0),x&&clearTimeout(x),x=setTimeout(()=>{c(b,!1)},150)}function C(){window.scrollTo({top:0,behavior:`smooth`})}r(()=>(window.addEventListener(`scroll`,S,{passive:!0}),()=>{window.removeEventListener(`scroll`,S),x&&clearTimeout(x)}));var w=y();h(`12qhfyh`,t=>{var n=v();e(24),p(t,n)});var T=l(t(w),2);g(T,()=>s.children);var E=l(T,2);let D;a(()=>D=m(E,1,`back-to-top glass-panel svelte-12qhfyh`,null,D,{visible:i(_),scrolling:i(b)})),n(`click`,E,C),p(o,w),d()}s([`click`]);export{b as component};

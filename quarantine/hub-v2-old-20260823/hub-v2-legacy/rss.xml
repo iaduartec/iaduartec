@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Hub operativo de Sergio</title>
+    <link>https://duartec.com/hub-v2</link>
+    <description>A neon-glass showcase of Sergio's apps, infrastructure, and live metrics.</description>
+    <language>en</language>
+    <lastBuildDate>Sat, 22 Aug 2026 14:42:12 GMT</lastBuildDate>
+    <generator>duartec-hub static build</generator>
+    <item>
+      <title>Sergio Dashboard</title>
+      <description>Operations SPA for live monitoring of Sergio&apos;s infrastructure, services, and deployments.</description>
+      <link>https://duartec.com/hub-v2/projects/dashboard</link>
+      <guid>https://duartec.com/hub-v2/projects/dashboard</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>infrastructure</category>
+    </item>
+    <item>
+      <title>Web Duartec</title>
+      <description>Corporate site for the company, served and integrated locally.</description>
+      <link>https://duartec.com/hub-v2/projects/web-duartec</link>
+      <guid>https://duartec.com/hub-v2/projects/web-duartec</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>public-apps</category>
+    </item>
+    <item>
+      <title>Web Duartec Admin</title>
+      <description>Admin panel for the Duartec CMS, content, blog, and configuration.</description>
+      <link>https://duartec.com/hub-v2/projects/web-duartec-admin</link>
+      <guid>https://duartec.com/hub-v2/projects/web-duartec-admin</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>public-apps</category>
+    </item>
+    <item>
+      <title>n8n Workflows Activos</title>
+      <description>Operational workflows that power ingestion, routing, and alerts for Sergio&apos;s apps.</description>
+      <link>https://duartec.com/hub-v2/projects/workflows-activos</link>
+      <guid>https://duartec.com/hub-v2/projects/workflows-activos</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>automation</category>
+    </item>
+    <item>
+      <title>OpenClaw Gateway</title>
+      <description>Gateway for local and remote AI models used by Sergio.</description>
+      <link>https://duartec.com/hub-v2/projects/openclaw-gateway</link>
+      <guid>https://duartec.com/hub-v2/projects/openclaw-gateway</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>infrastructure</category>
+    </item>
+    <item>
+      <title>Trading Dashboard</title>
+      <description>Trading analysis dashboard built with Streamlit and Freqtrade.</description>
+      <link>https://duartec.com/hub-v2/projects/trading-dashboard</link>
+      <guid>https://duartec.com/hub-v2/projects/trading-dashboard</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>finance-tools</category>
+    </item>
+    <item>
+      <title>GitHub de Sergio</title>
+      <description>Personal repository surface for Sergio&apos;s code, infrastructure, and automation.</description>
+      <link>https://duartec.com/hub-v2/projects/github-sergio</link>
+      <guid>https://duartec.com/hub-v2/projects/github-sergio</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>docs-links</category>
+    </item>
+    <item>
+      <title>Mission Bridge</title>
+      <description>AI-assisted extraction of information from media to generate investment ideas for Sergio.</description>
+      <link>https://duartec.com/hub-v2/projects/mission-bridge</link>
+      <guid>https://duartec.com/hub-v2/projects/mission-bridge</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>automation</category>
+    </item>
+    <item>
+      <title>Sergio Portfolio</title>
+      <description>Personal finance tracking and management tool.</description>
+      <link>https://duartec.com/hub-v2/projects/portfolio</link>
+      <guid>https://duartec.com/hub-v2/projects/portfolio</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>finance-tools</category>
+    </item>
+    <item>
+      <title>Espacio / El Santuario</title>
+      <description>Venue website for bookings, pricing, facilities, and gifts.</description>
+      <link>https://duartec.com/hub-v2/projects/espacio</link>
+      <guid>https://duartec.com/hub-v2/projects/espacio</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>public-apps</category>
+    </item>
+    <item>
+      <title>Restaurante</title>
+      <description>Restaurant website with menu, reservations, chef, and origin story.</description>
+      <link>https://duartec.com/hub-v2/projects/restaurante</link>
+      <guid>https://duartec.com/hub-v2/projects/restaurante</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>public-apps</category>
+    </item>
+    <item>
+      <title>InsForge Platform</title>
+      <description>Plataforma backend unificada con auth, PostgreSQL, PostgREST y Deno runtime para APIs, sesiones y funciones edge.</description>
+      <link>https://duartec.com/hub-v2/projects/insforge</link>
+      <guid>https://duartec.com/hub-v2/projects/insforge</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>infrastructure</category>
+    </item>
+    <item>
+      <title>CNMV PDMR Tracker</title>
+      <description>Tracker de operaciones de insiders (PDMR) en empresas españolas vía CNMV.</description>
+      <link>https://duartec.com/hub-v2/projects/cnmv-pdmr</link>
+      <guid>https://duartec.com/hub-v2/projects/cnmv-pdmr</guid>
+      <pubDate>Sat, 22 Aug 2026 14:42:12 GMT</pubDate>
+      <category>finance-tools</category>
+    </item>
+  </channel>
+</rss>

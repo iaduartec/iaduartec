@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/hub-v2/favicon.svg"
+    />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/hub-v2/manifest.webmanifest" />
+    <meta name="theme-color" content="#6366f1" />
+
+    <!-- Preconnect for Google Fonts performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+
+    <!-- Trailing-slash redirect: prevent broken asset paths when visiting without / -->
+    <script>
+      (function() { var p = location.pathname; if (p.length > 1 && !p.endsWith('/') && p.indexOf('.') === -1) location.replace(p + '/' + location.search); })();
+    </script>
+
+    <!-- Default Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Hub operativo de Sergio" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Default Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Plausible Analytics
+         Replace "duartec.com" below with your actual Plausible domain if different.
+         This script is loaded defer and does not use cookies or track personal data. -->
+    <script
+      defer
+      data-domain="duartec.com"
+      src="https://plausible.io/js/script.js"
+    ></script>
+
+    <link href="/hub-v2/_app/immutable/entry/start.VDCB_pIK.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/chunks/B-ZFMeKI.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/chunks/BYPFN29E.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/entry/app.C4uFtPnI.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/chunks/DYl5dUZ5.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/hub-v2/_app/immutable/nodes/0.CyNmm6Xt.js" rel="modulepreload">
+		
+		<link href="/hub-v2/_app/immutable/assets/0.DtwaJpa8.css" rel="stylesheet">
+  </head>
+  <body id="top" data-sveltekit-preload-data="hover">
+    <div style="display: contents">
+			<script>
+				{
+					__sveltekit_1ispmfx = {
+						base: "/hub-v2",
+						assets: "/hub-v2"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/hub-v2/_app/immutable/entry/start.VDCB_pIK.js"),
+						import("/hub-v2/_app/immutable/entry/app.C4uFtPnI.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>

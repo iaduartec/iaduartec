@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="InsForge dashboard thumbnail">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#090c12"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.20 0 0 0 0 0.83 0 0 0 0 0.59 0 0 0 0.9 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .t { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; fill: #e5e7eb; }
+      .muted { fill: #94a3b8; }
+      .panel { fill: rgba(17,24,39,0.76); stroke: rgba(148,163,184,0.18); stroke-width: 2; }
+      .line { stroke: rgba(148,163,184,0.16); stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#accent)" opacity="0.06"/>
+
+  <rect x="0" y="0" width="1600" height="74" fill="#0b0f16"/>
+  <circle cx="1220" cy="37" r="6" fill="#34d399" filter="url(#glow)"/>
+  <text x="1240" y="44" class="t" font-size="26" font-weight="600">Connected</text>
+  <circle cx="1386" cy="37" r="18" fill="#123c2f"/>
+  <text x="1377" y="44" class="t" font-size="18" font-weight="700" fill="#34d399">A</text>
+  <text x="1430" y="40" class="t" font-size="26" font-weight="600">Admin</text>
+  <text x="1430" y="62" class="t muted" font-size="16">admin@example.com</text>
+
+  <rect x="24" y="108" rx="18" ry="18" width="274" height="720" class="panel"/>
+  <rect x="24" y="108" rx="18" ry="18" width="274" height="84" fill="#12201a" opacity="0.9"/>
+  <rect x="42" y="132" width="240" height="36" rx="12" fill="#0f172a"/>
+  <text x="66" y="156" class="t" font-size="23" font-weight="600" fill="#34d399">Dashboard</text>
+  <circle cx="56" cy="149" r="8" fill="#34d399" filter="url(#glow)"/>
+
+  <g class="t" font-size="21">
+    <text x="62" y="236">Projects</text>
+    <text x="62" y="292">Environments</text>
+    <text x="62" y="348">Users</text>
+    <text x="62" y="404">Roles</text>
+    <text x="62" y="460">API Keys</text>
+    <text x="62" y="516">Sessions</text>
+    <text x="62" y="572">Audit Logs</text>
+    <text x="62" y="628">Settings</text>
+  </g>
+  <g opacity="0.5">
+    <rect x="42" y="214" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="270" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="326" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="382" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="438" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="494" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="550" width="210" height="1" fill="#334155"/>
+    <rect x="42" y="606" width="210" height="1" fill="#334155"/>
+  </g>
+  <rect x="42" y="770" width="228" height="84" rx="14" fill="#0d1511" stroke="#1f2937"/>
+  <circle cx="62" cy="814" r="6" fill="#34d399"/>
+  <text x="78" y="818" class="t" font-size="18">System operational</text>
+
+  <rect x="342" y="112" width="1218" height="704" rx="24" fill="#0e131b" stroke="rgba(148,163,184,0.16)" stroke-width="2"/>
+
+  <g>
+    <rect x="378" y="148" width="270" height="110" rx="18" class="panel"/>
+    <rect x="672" y="148" width="270" height="110" rx="18" class="panel"/>
+    <rect x="966" y="148" width="270" height="110" rx="18" class="panel"/>
+    <rect x="1260" y="148" width="270" height="110" rx="18" class="panel"/>
+    <text x="414" y="188" class="t muted" font-size="18">DATABASES</text>
+    <text x="708" y="188" class="t muted" font-size="18">USERS</text>
+    <text x="1002" y="188" class="t muted" font-size="18">API KEYS</text>
+    <text x="1296" y="188" class="t muted" font-size="18">SESSIONS</text>
+    <text x="414" y="228" class="t" font-size="34" font-weight="700">8</text>
+    <text x="708" y="228" class="t" font-size="34" font-weight="700">24</text>
+    <text x="1002" y="228" class="t" font-size="34" font-weight="700">12</text>
+    <text x="1296" y="228" class="t" font-size="34" font-weight="700">7</text>
+    <circle cx="510" cy="214" r="28" fill="#103a2e" filter="url(#glow)"/>
+    <circle cx="804" cy="214" r="28" fill="#103a2e" filter="url(#glow)"/>
+    <circle cx="1098" cy="214" r="28" fill="#103a2e" filter="url(#glow)"/>
+    <circle cx="1392" cy="214" r="28" fill="#103a2e" filter="url(#glow)"/>
+  </g>
+
+  <rect x="378" y="292" width="760" height="430" rx="22" class="panel"/>
+  <rect x="1160" y="292" width="380" height="430" rx="22" class="panel"/>
+  <text x="408" y="338" class="t" font-size="26" font-weight="700">Database Tables</text>
+  <text x="408" y="366" class="t muted" font-size="16">Manage your schema and auth data</text>
+  <rect x="994" y="314" width="110" height="44" rx="12" fill="#111827" stroke="rgba(148,163,184,0.18)"/>
+  <text x="1017" y="343" class="t" font-size="16">View all</text>
+
+  <g class="t muted" font-size="16">
+    <text x="418" y="420">users</text><text x="700" y="420">24</text><text x="860" y="420">32 KB</text><text x="1008" y="420">2 min ago</text>
+    <text x="418" y="474">projects</text><text x="700" y="474">18</text><text x="860" y="474">48 KB</text><text x="1008" y="474">5 min ago</text>
+    <text x="418" y="528">sessions</text><text x="700" y="528">7</text><text x="860" y="528">12 KB</text><text x="1008" y="528">12 min ago</text>
+    <text x="418" y="582">audit_logs</text><text x="700" y="582">342</text><text x="860" y="582">128 KB</text><text x="1008" y="582">15 min ago</text>
+    <text x="418" y="636">roles</text><text x="700" y="636">6</text><text x="860" y="636">4 KB</text><text x="1008" y="636">18 min ago</text>
+  </g>
+  <g opacity="0.55">
+    <line x1="408" y1="392" x2="1110" y2="392" class="line"/>
+    <line x1="408" y1="446" x2="1110" y2="446" class="line"/>
+    <line x1="408" y1="500" x2="1110" y2="500" class="line"/>
+    <line x1="408" y1="554" x2="1110" y2="554" class="line"/>
+    <line x1="408" y1="608" x2="1110" y2="608" class="line"/>
+  </g>
+
+  <text x="1190" y="338" class="t" font-size="26" font-weight="700">Recent Sessions</text>
+  <text x="1190" y="366" class="t muted" font-size="16">Admin access and activity</text>
+  <g class="t" font-size="16">
+    <circle cx="1186" cy="422" r="6" fill="#34d399"/>
+    <text x="1200" y="428">admin@example.com</text>
+    <text x="1200" y="454" class="muted">Chrome · Windows</text>
+    <circle cx="1186" cy="500" r="6" fill="#34d399"/>
+    <text x="1200" y="506">dev@example.com</text>
+    <text x="1200" y="532" class="muted">Firefox · macOS</text>
+    <circle cx="1186" cy="578" r="6" fill="#6b7280"/>
+    <text x="1200" y="584">viewer@example.com</text>
+    <text x="1200" y="610" class="muted">Safari · iOS</text>
+  </g>
+
+  <rect x="378" y="744" width="1162" height="36" rx="18" fill="url(#accent)" opacity="0.16"/>
+</svg>

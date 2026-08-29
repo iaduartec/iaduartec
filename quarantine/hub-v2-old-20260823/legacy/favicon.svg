@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="duartec-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Fondo oscuro redondeado -->
+  <rect width="32" height="32" rx="6" fill="#020617"/>
+  <!-- Letra D estilizada -->
+  <path d="M8 6h8c5.523 0 10 4.477 10 10s-4.477 10-10 10H8V6z" fill="none" stroke="url(#duartec-grad)" stroke-width="2.5" filter="url(#glow)"/>
+  <!-- Punto neon accent -->
+  <circle cx="16" cy="16" r="2" fill="#ec4899" opacity="0.8"/>
+</svg>

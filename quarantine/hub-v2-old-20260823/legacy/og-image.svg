@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="1200" height="630" fill="#020617"/>
+
+  <!-- Subtle radial gradient overlay -->
+  <ellipse cx="600" cy="200" rx="500" ry="300" fill="rgba(99,102,241,0.06)"/>
+
+  <!-- Decorative corner brackets -->
+  <path d="M 60 120 L 60 60 L 120 60" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/>
+  <path d="M 1140 120 L 1140 60 L 1080 60" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/>
+  <path d="M 60 510 L 60 570 L 120 570" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/>
+  <path d="M 1140 510 L 1140 570 L 1080 570" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/>
+
+  <!-- Code bracket decoration -->
+  <text x="80" y="140" font-family="monospace" font-size="48" fill="rgba(255,255,255,0.08)">&lt;/&gt;</text>
+
+  <!-- Main title -->
+  <text x="600" y="280" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="url(#neonGrad)" filter="url(#glow)">Hub operativo de Sergio</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="350" text-anchor="middle" font-family="monospace" font-size="28" fill="rgba(255,255,255,0.5)">18 projects · 99.97% uptime</text>
+
+  <!-- Neon line accent -->
+  <line x1="450" y1="380" x2="750" y2="380" stroke="url(#neonGrad)" stroke-width="2" opacity="0.4"/>
+
+  <!-- Bottom tagline -->
+  <text x="600" y="430" text-anchor="middle" font-family="monospace" font-size="18" fill="rgba(255,255,255,0.3)" letter-spacing="4">NEON-GLASS PROJECT SHOWCASE</text>
+
+  <!-- URL at bottom -->
+  <text x="600" y="560" text-anchor="middle" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.2)">duartec.com/hub-v2</text>
+</svg>
