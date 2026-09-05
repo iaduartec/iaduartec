@@ -31,6 +31,8 @@ Esto no equivale todavía a una política de inversión desplegable: Shadow cont
 - `projects/trading`: `main` limpio; el repositorio no tiene upstream configurado en este checkout.
 - `sites/mission-alpha-connections`: `main` sincronizado con su remote de Sites.
 
+Nota de estructura: el checkout raíz conserva referencias Git tipo `gitlink` para varios repositorios, pero no tiene `.gitmodules`; por eso `git submodule status` no es un verificador válido aquí. La paridad de esos punteros se comprobó directamente con `git ls-files -s` y contra los HEAD de cada checkout.
+
 ## Guardrails que siguen activos
 
 - Sin órdenes Alpaca Live.
