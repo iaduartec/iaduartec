@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-05
 **Alcance:** Cierre de pendientes operativos de Mission Alpha en 5 repositorios, sin mezclar cambios entre repos, sin tocar secretos y sin habilitar trading real.
-**Status final:** `success` — con 1 pendiente bloqueado por identidad de tailnet y hallazgos documentados.
+**Status final:** `success_with_owner_actions` — `/health` activado y rollback fuera del submódulo; quedan pendientes de dueño la identidad Tailscale, la rotación de secretos históricos, los fixtures y la decisión sobre Hub V2.
 
 ---
 
@@ -28,7 +28,7 @@ Ambos pusheados; `main` y `origin/main` sincronizados. Árbol limpio.
 | `baa6656` | chore(hub-v2): remove superseded immutable chunks | Las 7 eliminaciones de chunks viejos (quedaron sin stage tras `fd74513`; commit de cierre de la rotación) |
 | `f0512a2` | chore(dashboard/hub-v2): self-host fonts via @fontsource | Build con fuentes 100% locales: 48 woff2/woff en `_app/immutable/assets/`, index/200/version/rss actualizados |
 
-Los tres pusheados. La carpeta `dashboard/hub-v2-rollback-20260905-030604/` queda **intacta y sin trackear** (por instrucción, no se incluyó en ningún commit).
+Los tres pusheados. La carpeta `dashboard/hub-v2-rollback-20260905-030604/` se conservó intacta y posteriormente se movió a `/home/ubuntu/.quarantine/hub-v2-rollback-20260905-030604/` para dejar el submódulo limpio.
 
 ### 1.3 apps/duartec-hub — fuente de Hub V2 (rama `codex/hub-v2-v5`)
 
@@ -102,8 +102,8 @@ El nodo local tiene identidad de **dispositivo** (`UserID 5456225235965149` → 
 ### H-3 🟡 Reformateo de estilo mezclado en el commit de `/health`
 El commit `16526c1` incluyó un reformateo completo de `server.py` (7065+/4211−; comillas simples→dobles, imports multi-línea) junto con el endpoint. Verificación con AST: la divergencia estructural es únicamente la inserción de `/health`; el reformat es semánticamente neutro (339 chars de delta ≈ el tamaño del endpoint). Consecuencia: blame de `server.py` contaminado. **Lección de proceso:** los subagentes deben commitear únicamente las líneas objetivo (verificarse con `git diff -w` y `git show --stat` antes del push).
 
-### H-4 🟡 /health requiere restart para activarse
-El endpoint está en `main` pero el servicio en ejecución no lo tiene cargado. Activarlo requiere `systemctl restart mission-bridge.service` — cambio de producción que exige puerta explícita del dueño (las verificaciones no autorizan restarts).
+### H-4 🟢 /health activado tras restart
+El endpoint estaba en `main` pero el servicio en ejecución no lo tenía cargado. Se ejecutó un restart controlado con autorización del dueño; `mission-bridge.service` quedó `active` y `/health` respondió `HTTP 200` con `{"status": "ok"}`. El reinicio interrumpió una tarea OpenCode en curso y el servicio la recuperó según `Restart=always`.
 
 ### H-5 🟡 3 fallas pre-existentes en `test_v4_validation_gate.py`
 `test_complete_fixture_passes_all_gates`, `test_missing_baseline_comparison_is_not_proven`, `test_missing_oos_sample_is_not_proven_not_pass` — 3 failed, 339 passed. Verificado que el archivo **no importa `server.py`** (usa importlib + json + Path): las fallas no son causadas por los commits de esta sesión. Los tests leen fixtures de `state/` runtime mutable; la ingesta en curso cambia ese estado. Corregirlos implica una decisión de diseño (congelar fixtures) y son gates fail-closed que no se tocan a ciegas.
@@ -130,7 +130,7 @@ El template `deploy/systemd/trading-streamlit.service` **ya tenía** `Environmen
 
 ## 4. Estados remanentes esperados (por diseño, no errores)
 
-- `duartec-infra` muestra la carpeta rollback untracked (`dashboard/hub-v2-rollback-20260905-030604/`) — conservada por instrucción explícita.
+- El rollback de `duartec-infra` está conservado fuera del repositorio en `/home/ubuntu/.quarantine/hub-v2-rollback-20260905-030604/`.
 - Los punteros commiteados en el raíz son SHAs completos, limpios y pusheados — **cero referencias `-dirty`**.
 
 ## 5. Guardrails preservados
@@ -144,10 +144,9 @@ El template `deploy/systemd/trading-streamlit.service` **ya tenía** `Environmen
 
 1. **H-1:** elegir camino de identidad Tailscale (acceso desde nodo con usuario, o login del nodo) para completar la QA autenticada del Canvas.
 2. **H-2:** rotar los secretos que estuvieron en el historial de trading-bot y decidir si se audita/reescribe el historial.
-3. **H-4:** autorizar `systemctl restart mission-bridge.service` para activar `/health` (con documentación de impacto y rollback).
-4. **H-5:** decidir el diseño de los fixtures de `test_v4_validation_gate.py` (congelados vs runtime).
-5. **H-7:** evaluar y aplicar los fixes de Dependabot en duartec-infra.
-6. **H-9:** decidir el destino del commit `f8d4b01` en el `main` local de `apps/duartec-hub` (integrar o descartar).
+3. **H-5:** decidir el diseño de los fixtures de `test_v4_validation_gate.py` (congelados vs runtime).
+4. **H-7:** evaluar y aplicar los fixes de Dependabot en duartec-infra.
+5. **H-9:** decidir el destino del commit `f8d4b01` en el `main` local de `apps/duartec-hub` (integrar o descartar).
 
 ## 7. Rollback
 
@@ -164,4 +163,11 @@ git revert 3c0dff4 4e21113 24e76b4 92c9830   # guards, untrack, wiring, gate
 git revert 04773f4de 0faa041dc   # punteros
 ```
 
-Restauración alternativa de assets Hub V2: copiar desde `dashboard/hub-v2-rollback-20260905-030604/` (conservada intacta).
+Restauración alternativa de assets Hub V2: copiar desde `/home/ubuntu/.quarantine/hub-v2-rollback-20260905-030604/` (conservada intacta y fuera del repositorio).
+
+## 8. Acciones posteriores al reporte
+
+- `mission-bridge.service` reiniciado de forma controlada el 2026-09-05; estado verificado: `active` y `enabled`.
+- `GET http://127.0.0.1:8020/health` verificado: `HTTP 200`, `{"status": "ok"}`.
+- El rollback de Hub V2 quedó fuera de `duartec-infra` en cuarentena para conservarlo sin ensuciar el submódulo.
+- No se tocaron secretos, no se reescribió historial y no se modificó la audiencia pública de ninguna site.
