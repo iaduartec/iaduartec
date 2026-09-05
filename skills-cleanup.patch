@@ -1,0 +1,18 @@
+--- /home/ubuntu/.codex/config.toml
++++ /home/ubuntu/.codex/config.toml
+@@
+ [plugins."cloudflare@openai-curated"]
+-enabled = true
++enabled = false
+@@
+ [plugins."sentry@openai-curated"]
+-enabled = true
++enabled = false
+@@
+ [plugins."visualize@openai-bundled"]
+-enabled = true
++enabled = false
+@@
+ [plugins."sites@openai-bundled"]
+-enabled = true
++enabled = false

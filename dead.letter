@@ -1,0 +1,18 @@
+From ubuntu@kiri-vnic Thu Sep  3 18:14:53 2026
+Subject: Upgraded your server succesfully Thu Sep  3 18:14:53 UTC 2026
+To: <your.name@email.com>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Thu,  3 Sep 2026 18:14:53 +0000
+
+aptitupde update
+Command 'aptitude' not found, but can be installed with:
+sudo apt install aptitude
+
+aptitude full-upgrade
+Command 'aptitude' not found, but can be installed with:
+sudo apt install aptitude
+
+aptitude clean
+Command 'aptitude' not found, but can be installed with:
+sudo apt install aptitude
+

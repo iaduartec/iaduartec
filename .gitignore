@@ -39,6 +39,8 @@ ai/swarm/budget.json
 .gemini/
 .engram/
 .antigravity-server/
+.antigravity-ide-server/
+.quarantine/
 .antigravity_cockpit/
 .0dai-editor/
 .roo/
