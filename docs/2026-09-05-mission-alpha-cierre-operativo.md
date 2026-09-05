@@ -181,4 +181,4 @@ Los cambios posteriores a la primera redacción del reporte son:
 - Repositorio raíz `91c1b0796`: punteros de `mission-bridge`, `duartec-infra` y `apps/duartec-hub` actualizados y publicados.
 - Verificación real en `:9449`: `portfolio.json` **200 / 259 ideas**, `polymarket/sentiment` **200 / 6 señales / 32 mercados**, `analysts/profiles` **200**.
 
-Pendientes reales restantes: auditoría externa de credenciales históricas de `trading-bot` y confirmación de las alertas remotas de Dependabot. No se ejecuta una rotación ficticia ni una reescritura preventiva porque no se ha identificado una credencial concreta y ambas acciones requieren autoridad externa.
+Pendientes reales restantes: auditoría externa de credenciales históricas de `trading-bot` y confirmación de las alertas remotas de Dependabot. GitHub confirmó que Secret Scanning está desactivado y que no está disponible para este repositorio privado con el plan actual (`422`); no hay alertas Dependabot abiertas visibles. No se ejecuta una rotación ficticia ni una reescritura preventiva porque no se ha identificado una credencial concreta y ambas acciones requieren autoridad externa.
