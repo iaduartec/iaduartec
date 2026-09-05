@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-05
 **Alcance:** Cierre de pendientes operativos de Mission Alpha en 5 repositorios, sin mezclar cambios entre repos, sin tocar secretos y sin habilitar trading real.
-**Status final:** `success_with_owner_actions` — `/health`, la ruta autenticada de Canvas, los tests de validación y la integración de Hub V2 quedan operativos; permanece pendiente la rotación de secretos históricos y la actualización/auditoría de alertas remotas.
+**Status final:** `success_with_owner_actions` — `/health`, la ruta autenticada de Canvas, los tests de validación y la integración de Hub V2 quedan operativos; permanece pendiente la auditoría externa de credenciales históricas y la actualización de alertas remotas.
 
 ---
 
@@ -95,8 +95,8 @@ Ambos pusheados. **Cero referencias `-dirty`:** todos los punteros commiteados s
 El navegador usaba `:9449` directamente contra `127.0.0.1:8020`, por lo que no pasaba por la ruta Caddy que añade el contexto de identidad. `:9449` ahora proxyfica `10.0.0.229:80`, Caddy aplica la ruta `/canvas` y el cambio queda persistido en `scripts/tailscale-serve-apply.sh`. El puerto sigue siendo `tailnet-only`. Verificación real: `portfolio.json` 200 con 259 ideas, `polymarket/sentiment` 200 con 6 señales/32 mercados/6 narrativas/5 divergencias y `analysts/profiles` 200.
 
 
-### H-2 🔴 Secretos de trading.env en el historial de git
-`deploy/systemd/trading.env` estuvo trackeado con valores reales (incluido el valor previo del gate). El untrack (`4e21113`) elimina los secretos de los **árboles futuros**, pero las versiones históricas permanecen accesibles en el historial de `iaduartec/trading-bot`. Corregible solo con rewrite de historial (prohibido por las reglas de esta sesión) o **rotación de los secretos** + auditoría de quién tuvo acceso al repo.
+### H-2 🟡 auditoría externa de credenciales históricas pendiente
+`deploy/systemd/trading.env` estuvo trackeado históricamente y el archivo actual ya no lo está. La revisión local, sin imprimir valores, no encontró nombres de credenciales de proveedor, patrones reconocibles de API keys/tokens ni URLs con credenciales incrustadas; `FREQTRADE_API_URL` apunta a una red privada. El backup local fue protegido con modo `600`. Decisión: **auditar primero GitHub Secret Scanning y los proveedores; no reescribir el historial mientras no exista un secreto confirmado**, porque la reescritura es disruptiva y no sustituye la rotación.
 
 ### H-3 🟡 Reformateo de estilo mezclado en el commit de `/health`
 El commit `16526c1` incluyó un reformateo completo de `server.py` (7065+/4211−; comillas simples→dobles, imports multi-línea) junto con el endpoint. Verificación con AST: la divergencia estructural es únicamente la inserción de `/health`; el reformat es semánticamente neutro (339 chars de delta ≈ el tamaño del endpoint). Consecuencia: blame de `server.py` contaminado. **Lección de proceso:** los subagentes deben commitear únicamente las líneas objetivo (verificarse con `git diff -w` y `git show --stat` antes del push).
@@ -141,7 +141,7 @@ El template `deploy/systemd/trading-streamlit.service` **ya tenía** `Environmen
 
 ## 6. Pendientes que requieren acción del dueño
 
-1. **H-2:** rotar los secretos que estuvieron en el historial de trading-bot y decidir si se audita/reescribe el historial.
+1. **H-2:** revisar las alertas de Secret Scanning y el inventario de proveedores desde sus consolas; si aparece una credencial confirmada, rotarla y evaluar reescritura coordinada del historial.
 2. **H-7:** esperar el refresco de Dependabot y confirmar que las 3 alertas remotas reflejan el lockfile actual.
 
 ## 7. Rollback
@@ -181,4 +181,4 @@ Los cambios posteriores a la primera redacción del reporte son:
 - Repositorio raíz `91c1b0796`: punteros de `mission-bridge`, `duartec-infra` y `apps/duartec-hub` actualizados y publicados.
 - Verificación real en `:9449`: `portfolio.json` **200 / 259 ideas**, `polymarket/sentiment` **200 / 6 señales / 32 mercados**, `analysts/profiles` **200**.
 
-Pendientes reales restantes: rotación de secretos históricos de `trading-bot` y confirmación de las alertas remotas de Dependabot. No se ejecutan automáticamente porque requieren rotación/auditoría externa y no deben resolverse exponiendo credenciales.
+Pendientes reales restantes: auditoría externa de credenciales históricas de `trading-bot` y confirmación de las alertas remotas de Dependabot. No se ejecuta una rotación ficticia ni una reescritura preventiva porque no se ha identificado una credencial concreta y ambas acciones requieren autoridad externa.
