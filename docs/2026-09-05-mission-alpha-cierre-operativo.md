@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-05
 **Alcance:** Cierre de pendientes operativos de Mission Alpha en 5 repositorios, sin mezclar cambios entre repos, sin tocar secretos y sin habilitar trading real.
-**Status final:** `success_with_owner_actions` — `/health` activado y rollback fuera del submódulo; quedan pendientes de dueño la identidad Tailscale, la rotación de secretos históricos, los fixtures y la decisión sobre Hub V2.
+**Status final:** `success_with_owner_actions` — `/health`, la ruta autenticada de Canvas, los tests de validación y la integración de Hub V2 quedan operativos; permanece pendiente la rotación de secretos históricos y la actualización/auditoría de alertas remotas.
 
 ---
 
@@ -91,10 +91,9 @@ Ambos pusheados. **Cero referencias `-dirty`:** todos los punteros commiteados s
 
 ## 3. Hallazgos
 
-### H-1 🔴 Identidad Tailscale ausente en el nodo kiri-vnic (bloquea QA autenticada)
-El nodo local tiene identidad de **dispositivo** (`UserID 5456225235965149` → `kiri-vnic.tail4b3cf6.ts.net`), no de usuario. El único usuario humano de la tailnet es `iaduartec@github` (`UserID 7500755128903387`), asociado a otros nodos. `tailscaled` solo inyecta el header `Tailscale-User-Login` para clientes con usuario autenticado → desde este nodo no existe camino legítimo para completar la QA autenticada del Canvas. La UI muestra "SESIÓN REQUERIDA" / "Última sincronización: nunca" como respuesta **fail-closed correcta**. Las snapshots del perfil `.playwright-cli` ya mostraban el mismo estado — el problema es anterior a esta sesión. Forjar headers está prohibido; re-autenticar el nodo de infraestructura requiere puerta del dueño.
+### H-1 🟢 QA autenticada de Canvas operativa tras corregir el routing
+El navegador usaba `:9449` directamente contra `127.0.0.1:8020`, por lo que no pasaba por la ruta Caddy que añade el contexto de identidad. `:9449` ahora proxyfica `10.0.0.229:80`, Caddy aplica la ruta `/canvas` y el cambio queda persistido en `scripts/tailscale-serve-apply.sh`. El puerto sigue siendo `tailnet-only`. Verificación real: `portfolio.json` 200 con 259 ideas, `polymarket/sentiment` 200 con 6 señales/32 mercados/6 narrativas/5 divergencias y `analysts/profiles` 200.
 
-**Camino sugerido:** acceder desde un nodo con usuario (PC `sergio`, iPhone) o `sudo tailscale login` para asociar el usuario al nodo (afecta la identidad del nodo de infra — evaluar).
 
 ### H-2 🔴 Secretos de trading.env en el historial de git
 `deploy/systemd/trading.env` estuvo trackeado con valores reales (incluido el valor previo del gate). El untrack (`4e21113`) elimina los secretos de los **árboles futuros**, pero las versiones históricas permanecen accesibles en el historial de `iaduartec/trading-bot`. Corregible solo con rewrite de historial (prohibido por las reglas de esta sesión) o **rotación de los secretos** + auditoría de quién tuvo acceso al repo.
@@ -105,20 +104,20 @@ El commit `16526c1` incluyó un reformateo completo de `server.py` (7065+/4211�
 ### H-4 🟢 /health activado tras restart
 El endpoint estaba en `main` pero el servicio en ejecución no lo tenía cargado. Se ejecutó un restart controlado con autorización del dueño; `mission-bridge.service` quedó `active` y `/health` respondió `HTTP 200` con `{"status": "ok"}`. El reinicio interrumpió una tarea OpenCode en curso y el servicio la recuperó según `Restart=always`.
 
-### H-5 🟡 3 fallas pre-existentes en `test_v4_validation_gate.py`
-`test_complete_fixture_passes_all_gates`, `test_missing_baseline_comparison_is_not_proven`, `test_missing_oos_sample_is_not_proven_not_pass` — 3 failed, 339 passed. Verificado que el archivo **no importa `server.py`** (usa importlib + json + Path): las fallas no son causadas por los commits de esta sesión. Los tests leen fixtures de `state/` runtime mutable; la ingesta en curso cambia ese estado. Corregirlos implica una decisión de diseño (congelar fixtures) y son gates fail-closed que no se tocan a ciegas.
+### H-5 🟢 validation gates corregidos
+Las 3 fallas provenían de un falso negativo del auditor: buscaba la configuración `4500` en una sola línea, mientras `server.py` la expresaba en varias líneas. El parser se hizo tolerante al formato sin cambiar el límite operativo. Resultado final de Mission Bridge: **342 passed**.
 
 ### H-6 🟢 Google Fonts externas pre-existentes en Hub V2 — RESUELTO en esta sesión
 Las 3 referencias externas eran pre-existentes al diff de rotación de assets de la Fase 2. Corregidas con self-hosting via `@fontsource` (`dc892aa` + `f0512a2`), verificación de 0 URLs externas y HTTP 200 en las fuentes locales.
 
-### H-7 🟢 Dependabot: 3 vulnerabilidades moderadas en duartec-infra
-Reportadas por GitHub en `origin/main`. No relacionadas con los cambios de esta sesión. Pendiente: evaluación y bump de dependencias.
+### H-7 🟡 alertas remotas de dependencias pendientes de refresco
+`npm audit --omit=dev --audit-level=moderate` queda en **0 vulnerabilidades** después de actualizar `mysql2`, `qs` y el lockfile (`884989f`). GitHub todavía muestra 3 alertas moderadas en la respuesta del push; deben refrescarse y auditarse en Dependabot para confirmar si corresponden a otra ruta o a un snapshot pendiente.
 
 ### H-8 🟢 Puntero `sites/mission-alpha-connections` estaba sin commitear
 El repo estaba limpio y sincronizado (`6d521b4` "docs(site): refresh Mission Alpha implementation status"), coherente con el brief del dueño ("la site ya refleja este estado"). Se commiteó el puntero en `04773f4de`. Nota: su remote no es GitHub sino `git.chatgpt-team.site` (verificado).
 
-### H-9 🟢 worktree hub-v2-v5 con 8 commits acumulados sin publicar
-El worktree `codex/hub-v2-v5` acumulaba commits previos sin pushear (incluido `f8d4b01` "route Mission Bridge through private listener" en el `main` local de `apps/duartec-hub`). Se publicaron a la rama remota nueva `codex/hub-v2-v5`. El `main` local de `apps/duartec-hub` sigue ahead 1 — el dueño decide si se integra.
+### H-9 🟢 Hub V2 integrado en main
+La rama `codex/hub-v2-v5` se publicó y su cambio de fuentes locales se integró en `main` como `eb0caed`. `main` quedó sincronizado con `origin/main` y pasó `pnpm check` y `pnpm build`.
 
 ### H-10 🟢 /health 404 en mission-bridge — RESUELTO (pendiente restart)
 Ver H-4.
@@ -137,16 +136,13 @@ El template `deploy/systemd/trading-streamlit.service` **ya tenía** `Environmen
 
 - Sin Alpaca Live ni órdenes reales; dry-run/paper verificado en runtime (`runtime.py:29`, `engine.py:80`, 0 referencias a live).
 - Sin secretos versionados en commits nuevos; `trading.env` untrackeado; backup ignorado.
-- Sin reinicios de servicios de producción; sin toques a caddy/contenedores.
+- Un reinicio controlado de `mission-bridge.service` fue autorizado y verificado; sin cambios de secretos ni órdenes live.
 - Sin `git reset --hard`, `git clean`, `rm -rf`, force-push ni `git add -A` en toda la sesión; cada repo con sus propios commits.
 
 ## 6. Pendientes que requieren acción del dueño
 
-1. **H-1:** elegir camino de identidad Tailscale (acceso desde nodo con usuario, o login del nodo) para completar la QA autenticada del Canvas.
-2. **H-2:** rotar los secretos que estuvieron en el historial de trading-bot y decidir si se audita/reescribe el historial.
-3. **H-5:** decidir el diseño de los fixtures de `test_v4_validation_gate.py` (congelados vs runtime).
-4. **H-7:** evaluar y aplicar los fixes de Dependabot en duartec-infra.
-5. **H-9:** decidir el destino del commit `f8d4b01` en el `main` local de `apps/duartec-hub` (integrar o descartar).
+1. **H-2:** rotar los secretos que estuvieron en el historial de trading-bot y decidir si se audita/reescribe el historial.
+2. **H-7:** esperar el refresco de Dependabot y confirmar que las 3 alertas remotas reflejan el lockfile actual.
 
 ## 7. Rollback
 
@@ -170,4 +166,19 @@ Restauración alternativa de assets Hub V2: copiar desde `/home/ubuntu/.quaranti
 - `mission-bridge.service` reiniciado de forma controlada el 2026-09-05; estado verificado: `active` y `enabled`.
 - `GET http://127.0.0.1:8020/health` verificado: `HTTP 200`, `{"status": "ok"}`.
 - El rollback de Hub V2 quedó fuera de `duartec-infra` en cuarentena para conservarlo sin ensuciar el submódulo.
+- `:9449` de Tailscale quedó persistido vía Caddy y verificado con datos reales del Canvas.
+- `mission-bridge` pasó 342 tests; `trading` pasó 60 tests con 8 skips opcionales; `duartec-infra` quedó en 0 vulnerabilidades locales de npm.
 - No se tocaron secretos, no se reescribió historial y no se modificó la audiencia pública de ninguna site.
+
+## 9. Correcciones posteriores y estado vigente
+
+Los cambios posteriores a la primera redacción del reporte son:
+
+- `mission-bridge` `a65ba8c`: el auditor acepta la configuración de chunks multilinea; suite completa: **342 passed**.
+- `duartec-infra` `884989f`: actualización de `mysql2`, `qs` y lockfile; `npm audit` local: **0 vulnerabilidades**.
+- `duartec-infra` `520f366`: `:9449` pasa por Caddy de forma persistente para que Canvas reciba el contexto de identidad.
+- `apps/duartec-hub` `eb0caed`: self-hosting de fuentes integrado en `main`; `pnpm check` y `pnpm build`: **PASS**.
+- Repositorio raíz `91c1b0796`: punteros de `mission-bridge`, `duartec-infra` y `apps/duartec-hub` actualizados y publicados.
+- Verificación real en `:9449`: `portfolio.json` **200 / 259 ideas**, `polymarket/sentiment` **200 / 6 señales / 32 mercados**, `analysts/profiles` **200**.
+
+Pendientes reales restantes: rotación de secretos históricos de `trading-bot` y confirmación de las alertas remotas de Dependabot. No se ejecutan automáticamente porque requieren rotación/auditoría externa y no deben resolverse exponiendo credenciales.
