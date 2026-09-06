@@ -1,0 +1,42 @@
+From 7fa609046a499bf6f5988116dfbf9a144ce62e1b Mon Sep 17 00:00:00 2001
+From: Gemini CLI <ia@duartec.es>
+Date: Sun, 28 Jun 2026 14:50:00 +0000
+Subject: [PATCH] feat: add build patch script to inject allow-unconfigured
+ flag into entry point
+
+---
+ patch.cjs | 7 +++++++
+ patch.js  | 7 +++++++
+ 2 files changed, 14 insertions(+)
+ create mode 100644 patch.cjs
+ create mode 100644 patch.js
+
+diff --git a/patch.cjs b/patch.cjs
+new file mode 100644
+index 00000000000..aa3eb9ea5fd
+--- /dev/null
++++ b/patch.cjs
+@@ -0,0 +1,7 @@
++const fs = require("fs");
++let code = fs.readFileSync("dist/entry_real.js", "utf8");
++code = code.replace(
++  "import { t as isMainModule }",
++  'process.argv.push("--allow-unconfigured");\nimport { t as isMainModule }',
++);
++fs.writeFileSync("dist/entry.js", code);
+diff --git a/patch.js b/patch.js
+new file mode 100644
+index 00000000000..aa3eb9ea5fd
+--- /dev/null
++++ b/patch.js
+@@ -0,0 +1,7 @@
++const fs = require("fs");
++let code = fs.readFileSync("dist/entry_real.js", "utf8");
++code = code.replace(
++  "import { t as isMainModule }",
++  'process.argv.push("--allow-unconfigured");\nimport { t as isMainModule }',
++);
++fs.writeFileSync("dist/entry.js", code);
+-- 
+2.43.0
+
