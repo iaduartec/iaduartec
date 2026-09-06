@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /home/ubuntu
+
+if [ ! -f /home/ubuntu/ASTRA_MIGRATION_AUDIT.md ]; then
+  echo "ERROR: primero ejecuta:"
+  echo "  /home/ubuntu/astra-audit"
+  exit 1
+fi
+
+PROMPT="$(cat /home/ubuntu/.astra/prompts/migrate.md)"
+
+exec codex \
+  -m gpt-6-astra \
+  -c 'model_reasoning_effort="high"' \
+  "$PROMPT"

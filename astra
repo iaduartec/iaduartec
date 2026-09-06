@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd /home/ubuntu
+
+echo "GPT-6 Astra Codex Orchestrator"
+echo
+echo "Prompt inicial recomendado:"
+echo "  /home/ubuntu/.astra/prompts/audit.md"
+echo
+
+exec codex \
+  -m gpt-6-astra \
+  -c 'model_reasoning_effort="high"'

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /home/ubuntu
+
+PROMPT="$(cat /home/ubuntu/.astra/prompts/audit.md)"
+
+exec codex \
+  -m gpt-6-astra \
+  -c 'model_reasoning_effort="high"' \
+  "$PROMPT"

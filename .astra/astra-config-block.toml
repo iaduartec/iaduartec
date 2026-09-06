@@ -1,0 +1,50 @@
+# ============================================================
+# GPT-6 ASTRA ORCHESTRATOR
+# Merge this block with ~/.codex/config.toml
+# ============================================================
+
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+model_verbosity = "low"
+
+[agents]
+max_threads = 8
+max_depth = 2
+default_subagent_model = "gpt-5.6-terra"
+default_subagent_reasoning_effort = "medium"
+
+[agents.explorer]
+description = "Fast repository discovery and evidence gathering."
+config_file = "agents/explorer.toml"
+
+[agents.worker]
+description = "Cheap focused execution."
+config_file = "agents/worker.toml"
+
+[agents.coder]
+description = "Main coding and refactoring worker."
+config_file = "agents/coder.toml"
+
+[agents.reviewer]
+description = "Independent high-quality reviewer."
+config_file = "agents/reviewer.toml"
+
+[agents.tester]
+description = "Targeted verification specialist."
+config_file = "agents/tester.toml"
+
+[agents.security]
+description = "Security specialist."
+config_file = "agents/security.toml"
+
+[agents.ui]
+description = "Frontend/UI specialist."
+config_file = "agents/ui.toml"
+
+[agents.infra]
+description = "Linux, Docker, Oracle Cloud, networking and CI specialist."
+config_file = "agents/infra.toml"
+
+[agents.docs]
+description = "Concise technical documentation."
+config_file = "agents/docs.toml"

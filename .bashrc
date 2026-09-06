@@ -1,3 +1,4 @@
+export PATH="/home/ubuntu/.nvm/versions/node/v24.20.0/bin:$PATH"
 # Keep user-installed command-line tools available in interactive shells.
 case ":${PATH:-}:" in
   *":$HOME/.local/bin:"*) ;;
@@ -19,3 +20,21 @@ export NVM_DIR="$HOME/.nvm"
 
 # Use the selected nvm default in new interactive shells.
 nvm use --silent default >/dev/null
+
+# ASTRA CODEX
+alias astra='/home/ubuntu/astra'
+alias astra-audit='/home/ubuntu/astra-audit'
+alias astra-migrate='/home/ubuntu/astra-migrate'
+alias astra-repos='/home/ubuntu/.astra/scan-repos.sh'
+
+# OpenClaw Completion
+[ -f '/home/ubuntu/.openclaw/completions/openclaw.bash' ] && source '/home/ubuntu/.openclaw/completions/openclaw.bash'
+
+# usage-manager opencode quota wrapper
+opencode() {
+  if [ "$1" = "quota" ]; then
+    ~/.local/bin/usage-manager "$@"
+  else
+    command "$HOME/.nvm/versions/node/v24.20.0/bin/opencode" "$@"
+  fi
+}
