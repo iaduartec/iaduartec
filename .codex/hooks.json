@@ -1,0 +1,32 @@
+{
+  "description": "Project Bridge multi-agent coordination hooks",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_BRIDGE_AGENT=codex PROJECT_BRIDGE_ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/project-bridge/bridge.py\" status",
+            "timeout": 5,
+            "additionalContextLimit": 1500,
+            "statusMessage": "Loading multi-agent project status"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_BRIDGE_AGENT=codex PROJECT_BRIDGE_ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/project-bridge/bridge.py\" auto-record",
+            "timeout": 10,
+            "async": true,
+            "statusMessage": "Recording coordination snapshot"
+          }
+        ]
+      }
+    ]
+  }
+}

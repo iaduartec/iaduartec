@@ -1,0 +1,17 @@
+{
+  "mcp": {
+    "servers": {
+      "project-bridge": {
+        "type": "local",
+        "command": [
+          "sh",
+          "-c",
+          "exec \"$(git rev-parse --show-toplevel)/.agents/scripts/bridge\" mcp"
+        ],
+        "environment": {
+          "PROJECT_BRIDGE_AGENT": "opencode"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,366 @@
+#!/usr/bin/env bash
+# Project Bridge doctor — portable health checks.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib.sh
+source "$SCRIPT_DIR/lib.sh"
+ROOT="$(bridge_root)"
+export PROJECT_BRIDGE_ROOT="$ROOT"
+BRIDGE_PY="$ROOT/.agents/project-bridge/bridge.py"
+OC_LOG="${OPENCODE_LOG:-$HOME/.local/share/opencode/log/opencode.log}"
+FAIL=0
+WARN=0
+ok()   { printf '✓ %s\n' "$1"; }
+bad()  { printf '✗ %s\n' "$1"; FAIL=$((FAIL+1)); }
+warn() { printf '! %s\n' "$1"; WARN=$((WARN+1)); }
+
+# ── 1 Project Bridge version ────────────────────────────────────────────────
+if [[ -f "$BRIDGE_PY" ]]; then
+  VER="$(python3 "$BRIDGE_PY" version 2>/dev/null || true)"
+  if [[ -n "$VER" ]]; then ok "$VER"; else bad "Project Bridge version"; fi
+else
+  bad "Project Bridge version (bridge.py missing)"
+fi
+
+# ── 1b Phase 2 schema and handoff surface ───────────────────────────────────
+SCHEMA="$(python3 - << PY 2>/dev/null || true
+import sys
+sys.path.insert(0, "$ROOT/.agents/project-bridge")
+import bridge
+from pathlib import Path
+print(bridge.db_schema_version(Path("$ROOT")))
+PY
+)"
+if [[ "$SCHEMA" == "2" ]]; then ok "Schema 2"; else bad "Schema 2"; fi
+
+TABLES="$(python3 - << PY 2>/dev/null || true
+import sqlite3
+from pathlib import Path
+p = Path("$ROOT/.agents/state/project-bridge.sqlite")
+try:
+    c = sqlite3.connect(p)
+    names = {r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    print("OK" if {"handoffs", "handoff_results", "handoff_sequence"} <= names else "MISSING")
+except Exception:
+    print("MISSING")
+PY
+)"
+if [[ "$TABLES" == "OK" ]]; then ok "Handoff tables"; else bad "Handoff tables"; fi
+
+TRANSITIONS="$(python3 - << PY 2>/dev/null || true
+import sys
+sys.path.insert(0, "$ROOT/.agents/project-bridge")
+import bridge
+expected = {"pending": {"accepted", "declined", "cancelled"}, "accepted": {"in_progress", "completed", "cancelled"}, "in_progress": {"completed", "cancelled"}}
+print("OK" if all(bridge.HANDOFF_TRANSITIONS.get(k) == v for k, v in expected.items()) else "MISSING")
+PY
+)"
+if [[ "$TRANSITIONS" == "OK" ]]; then ok "Handoff transitions"; else bad "Handoff transitions"; fi
+
+MCP_HANDOFFS="$(python3 - << PY 2>/dev/null || true
+import sys
+sys.path.insert(0, "$ROOT/.agents/project-bridge")
+import server
+names = {t["name"] for t in server.TOOLS}
+needed = {"request_handoff", "get_handoffs", "accept_handoff", "complete_handoff", "cancel_handoff"}
+print("OK" if needed <= names else "MISSING")
+PY
+)"
+if [[ "$MCP_HANDOFFS" == "OK" ]]; then ok "MCP handoff tools"; else bad "MCP handoff tools"; fi
+
+IDENTITIES="$(python3 - << PY 2>/dev/null || true
+import sys
+sys.path.insert(0, "$ROOT/.agents/project-bridge")
+import bridge
+print("OK" if bridge.VALID_HANDOFF_AGENTS == {"codex", "opencode", "agy"} else "MISSING")
+PY
+)"
+if [[ "$IDENTITIES" == "OK" ]]; then ok "Agent identities"; else bad "Agent identities"; fi
+
+# ── 2 Git repository ────────────────────────────────────────────────────────
+if git -C "$ROOT" rev-parse --show-toplevel >/dev/null 2>&1; then
+  ok "Git repository detected"
+else
+  bad "Git repository detected"
+fi
+
+# ── 3 Repository root ───────────────────────────────────────────────────────
+if [[ -n "$ROOT" && -d "$ROOT" ]]; then
+  ok "Repository root resolved ($ROOT)"
+else
+  bad "Repository root resolved"
+fi
+
+# ── 4 Project configuration ─────────────────────────────────────────────────
+CFG="$ROOT/.agents/config/bridge.json"
+if [[ -f "$CFG" ]] && python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$CFG" 2>/dev/null; then
+  ok "Project configuration valid (.agents/config/bridge.json)"
+else
+  bad "Project configuration valid"
+fi
+
+# ── 5 Python ────────────────────────────────────────────────────────────────
+if command -v python3 >/dev/null 2>&1; then
+  ok "Python present ($(python3 -V 2>&1))"
+else
+  bad "Python present"
+fi
+
+# ── 6 SQLite ────────────────────────────────────────────────────────────────
+SQLVER="$(python3 -c 'import sqlite3;print(sqlite3.sqlite_version)' 2>/dev/null || true)"
+if [[ -n "$SQLVER" ]]; then
+  ok "SQLite module present ($SQLVER)"
+else
+  bad "SQLite module present"
+fi
+
+# ── 7 Bridge database writable ──────────────────────────────────────────────
+if mkdir -p "$ROOT/.agents/state" && python3 - << PY
+import os, sqlite3, tempfile
+d = os.path.join("$ROOT", ".agents", "state")
+fd, p = tempfile.mkstemp(prefix=".writetest-", suffix=".sqlite", dir=d)
+os.close(fd)
+conn = sqlite3.connect(p); conn.execute("CREATE TABLE IF NOT EXISTS _t (x)")
+conn.execute("INSERT INTO _t VALUES (1)"); conn.commit(); conn.close(); os.remove(p)
+PY
+then
+  ok "Bridge database writable"
+else
+  bad "Bridge database writable"
+fi
+
+# ── 8 Codex integration ─────────────────────────────────────────────────────
+if [[ -f "$ROOT/.codex/config.toml" ]] && grep -q 'mcp_servers.project-bridge' "$ROOT/.codex/config.toml" 2>/dev/null; then
+  ok "Codex integration configured"
+else
+  bad "Codex integration configured"
+fi
+
+# ── 9 OpenCode version (V2) ─────────────────────────────────────────────────
+OC_VER=""
+if command -v opencode >/dev/null 2>&1; then
+  OC_VER="$(timeout 20 opencode --version 2>/dev/null | head -1 | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+fi
+OC_MAJOR="${OC_VER#v}"
+OC_MAJOR="${OC_MAJOR%%.*}"
+if [[ -z "$OC_VER" ]]; then
+  warn "OpenCode not found on PATH (skipping OpenCode checks)"
+elif [[ "$OC_MAJOR" =~ ^[0-9]+$ ]] && (( OC_MAJOR >= 2 )); then
+  ok "OpenCode $OC_VER (V2)"
+else
+  bad "OpenCode $OC_VER is V1/legacy — Project Bridge ships the V2 integration (upgrade OpenCode to >=2)"
+fi
+
+# ── 10 OpenCode V2 config (mcp.servers.project-bridge) ──────────────────────
+OC_JSON="$ROOT/opencode.json"
+OC_CFG="$(python3 -c '
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+except Exception:
+    print("MISSING"); sys.exit()
+mcp = d.get("mcp") if isinstance(d, dict) and isinstance(d.get("mcp"), dict) else {}
+if isinstance(mcp.get("servers"), dict) and "project-bridge" in mcp["servers"]:
+    print("V2")
+elif "project-bridge" in mcp:
+    print("V1")
+else:
+    print("NONE")
+' "$OC_JSON")"
+case "$OC_CFG" in
+  V2)  ok "OpenCode V2 config (mcp.servers.project-bridge)" ;;
+  V1)  bad "OpenCode MCP uses legacy V1 syntax (mcp.project-bridge) — migrate to mcp.servers" ;;
+  *)   bad "OpenCode MCP config missing project-bridge" ;;
+esac
+
+# ── 11 Project Bridge MCP connected ─────────────────────────────────────────
+# The stdio MCP handshake is asynchronous and the shared OpenCode server picks
+# up a freshly written opencode.json lazily. Immediately after install/migration
+# `opencode mcp list` can report `No MCP servers configured` or `pending` before
+# it reports `connected` (~1-2s). Poll briefly so a fresh install does not report
+# a false negative; fail only after the budget is exhausted.
+if command -v opencode >/dev/null 2>&1; then
+  MCP_STATE="missing"
+  for _ in 1 2 3 4 5 6 7 8; do
+    MCP_OUT="$(cd "$ROOT" && timeout 45 opencode mcp list 2>/dev/null || true)"
+    if printf '%s\n' "$MCP_OUT" | grep -qE 'project-bridge[[:space:]]+connected'; then
+      MCP_STATE="connected"; break
+    fi
+    if printf '%s\n' "$MCP_OUT" | grep -qE 'project-bridge[[:space:]]+pending'; then
+      MCP_STATE="pending"
+    else
+      MCP_STATE="missing"
+    fi
+    sleep 1
+  done
+  case "$MCP_STATE" in
+    connected) ok "Project Bridge MCP connected" ;;
+    pending)   bad "Project Bridge MCP not connected (still pending after wait)" ;;
+    *)         bad "Project Bridge MCP not connected" ;;
+  esac
+fi
+
+# ── 12 OpenCode V2 plugin contract + load-failure detection ─────────────────
+PLUGIN="$ROOT/.opencode/plugins/project-bridge.ts"
+if [[ ! -f "$PLUGIN" ]]; then
+  bad "OpenCode plugin missing (.opencode/plugins/project-bridge.ts)"
+elif grep -q '@opencode-ai/plugin' "$PLUGIN" 2>/dev/null \
+  || grep -qE 'export const [A-Za-z_]+ *: *Plugin' "$PLUGIN" 2>/dev/null; then
+  bad "OpenCode plugin uses obsolete V1 API (@opencode-ai/plugin / named Plugin export)"
+elif grep -q 'export default' "$PLUGIN" \
+  && grep -qE 'id: *"project-bridge"' "$PLUGIN" \
+  && grep -q 'setup(' "$PLUGIN"; then
+  # Compare the LAST load attempt against the LAST failure for this exact target
+  # instead of using the file mtime: an upgrade can preserve the template mtime
+  # (copy2), and a stale failure line must not be reported as a current one. If
+  # the most recent "loading plugin" line is newer than the most recent
+  # "failed to load plugin" line, the plugin loaded on its latest attempt.
+  LOADFAIL="$(python3 -c '
+import datetime, os, re, sys
+plugin, log = sys.argv[1], sys.argv[2]
+if not os.path.isfile(log):
+    print(""); sys.exit()
+ts_re = re.compile(r"timestamp=(\S+)")
+def parse_ts(line):
+    m = ts_re.search(line)
+    if not m:
+        return None
+    try:
+        return datetime.datetime.strptime(m.group(1), "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+            tzinfo=datetime.timezone.utc).timestamp()
+    except ValueError:
+        return None
+last_load = None
+last_fail = None
+try:
+    lines = open(log, errors="ignore").read().splitlines()
+except OSError:
+    lines = []
+for line in lines:
+    if plugin not in line:
+        continue
+    t = parse_ts(line)
+    if t is None:
+        continue
+    if "loading plugin" in line:
+        last_load = t if last_load is None else max(last_load, t)
+    elif "failed to load plugin" in line:
+        last_fail = t if last_fail is None else max(last_fail, t)
+if last_fail is not None and (last_load is None or last_fail > last_load):
+    print("fail")
+else:
+    print("")
+' "$PLUGIN" "$OC_LOG")"
+  if [[ -n "$LOADFAIL" ]]; then
+    bad "OpenCode V2 plugin failed to load in the running service (see $OC_LOG)"
+  else
+    ok "OpenCode V2 plugin contract valid (default definition, id + setup)"
+  fi
+else
+  bad "OpenCode plugin is not a V2 default definition (id + setup)"
+fi
+
+# ── 13 OpenCode idle integration ────────────────────────────────────────────
+if [[ -f "$PLUGIN" ]] \
+  && grep -q 'event.subscribe' "$PLUGIN" 2>/dev/null \
+  && grep -qE 'session\.idle|session\.execution\.succeeded' "$PLUGIN" 2>/dev/null; then
+  ok "OpenCode idle integration (event.subscribe -> auto-record)"
+else
+  bad "OpenCode idle integration missing"
+fi
+
+# ── 14 AGY integration (plugin is the real discovery path) ──────────────────
+if [[ -f "$ROOT/.agents/plugins/project-bridge/plugin.json" ]] \
+  && grep -q 'project-bridge' "$ROOT/.agents/plugins/project-bridge/mcp_config.json" 2>/dev/null; then
+  ok "AGY integration configured (plugin)"
+else
+  bad "AGY integration configured"
+fi
+
+# ── 15 Hook configuration ───────────────────────────────────────────────────
+HOOKS_OK=1
+[[ -f "$ROOT/.codex/hooks.json" ]] || HOOKS_OK=0
+[[ -f "$ROOT/.agents/hooks.json" ]] || HOOKS_OK=0
+[[ -f "$PLUGIN" ]] || HOOKS_OK=0
+if [[ "$HOOKS_OK" == "1" ]]; then
+  ok "Hook configuration complete (codex + agy + opencode)"
+else
+  bad "Hook configuration complete"
+fi
+
+# ── 16 AGY project binding ──────────────────────────────────────────────────
+BIND="$(python3 - << PY
+import json, os, sys
+sys.path.insert(0, "$ROOT/.agents/project-bridge")
+import bridge
+from pathlib import Path
+root = Path("$ROOT")
+try:
+    name = bridge.agy_project_name(root)
+except Exception:
+    print("ERR"); raise SystemExit
+d = bridge._agy_projects_dir()
+uri = "file://" + str(root.resolve())
+if not d.is_dir():
+    print("NO_DIR"); raise SystemExit
+for f in d.glob("*.json"):
+    try:
+        data = json.loads(f.read_text())
+    except Exception:
+        continue
+    if not isinstance(data, dict) or data.get("name") != name:
+        continue
+    uris = [r.get("folderUri") for r in (data.get("projectResources") or {}).get("resources", []) if isinstance(r, dict)]
+    if uri in uris:
+        print("OK:" + name); raise SystemExit
+print("MISSING:" + name)
+PY
+)"
+case "$BIND" in
+  OK:*)      ok "AGY project binding present (${BIND#OK:})" ;;
+  MISSING:*) warn "AGY project binding missing for '${BIND#MISSING:}' (run: .agents/scripts/agy-project, or agy --new-project)" ;;
+  *)         warn "AGY project binding unknown" ;;
+esac
+
+# ── 17 Runtime paths portable ───────────────────────────────────────────────
+if grep -Rqs --exclude=doctor "/srv/apps/web-duartec" "$ROOT/.agents/scripts" 2>/dev/null; then
+  bad "Runtime paths portable (pilot path found in .agents/scripts)"
+else
+  ok "Runtime paths portable"
+fi
+
+# ── 18 No absolute pilot paths in configs ───────────────────────────────────
+PILOT_HITS="$(grep -Rls "/srv/apps/web-duartec" \
+  "$ROOT/.codex/config.toml" "$ROOT/.codex/hooks.json" "$ROOT/.agents/hooks.json" \
+  "$ROOT/.agents/plugins/project-bridge" "$ROOT/opencode.json" "$ROOT/.opencode/plugins" 2>/dev/null || true)"
+if [[ -z "$PILOT_HITS" ]]; then
+  ok "No absolute pilot paths in portable configs"
+else
+  warn "Absolute pilot path found in: $(echo "$PILOT_HITS" | tr '\n' ' ')"
+fi
+
+# ── 19 State ignored by Git ─────────────────────────────────────────────────
+if git -C "$ROOT" check-ignore -q ".agents/state/project-bridge.sqlite" 2>/dev/null; then
+  ok "Runtime state ignored by Git"
+else
+  bad "Runtime state ignored by Git"
+fi
+
+# ── 20 Backup ignored by Git ────────────────────────────────────────────────
+if git -C "$ROOT" check-ignore -q ".agent-coordination-backup-20260101-000000/x" 2>/dev/null; then
+  ok "Backups ignored by Git"
+else
+  bad "Backups ignored by Git"
+fi
+
+echo
+if [[ "$FAIL" -eq 0 && "$WARN" -eq 0 ]]; then
+  echo "doctor: ALL OK"
+  exit 0
+elif [[ "$FAIL" -eq 0 ]]; then
+  echo "doctor: OK ($WARN warning(s))"
+  exit 0
+else
+  echo "doctor: $FAIL problem(s), $WARN warning(s)"
+  exit 1
+fi
