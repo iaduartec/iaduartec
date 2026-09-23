@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "project": {
+    "name": "ubuntu-root",
+    "agy_project_name": "ubuntu-root"
+  },
+  "agents": {
+    "codex": { "enabled": true },
+    "opencode": { "enabled": true },
+    "agy": { "enabled": true }
+  },
+  "bridge": {
+    "recent_changes_default_limit": 5,
+    "recent_changes_max_limit": 50,
+    "status_max_changes": 5,
+    "status_max_claims": 5,
+    "status_max_decisions": 3,
+    "status_max_bytes": 2048,
+    "handoff_default_limit": 5,
+    "handoff_max_limit": 50,
+    "claim_ttl_seconds": 14400
+  }
+}

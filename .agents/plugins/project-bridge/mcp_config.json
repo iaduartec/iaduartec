@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "project-bridge": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "exec \"$(git rev-parse --show-toplevel)/.agents/scripts/bridge\" mcp"
+      ],
+      "env": {
+        "PROJECT_BRIDGE_AGENT": "agy"
+      }
+    }
+  }
+}

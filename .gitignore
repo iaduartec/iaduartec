@@ -206,3 +206,33 @@ __pycache__/
 /go/pkg/mod/
 /go/pkg/sumdb/
 /snake-pentagon/
+
+# >>> project-bridge >>>
+# Project Bridge: version durable config, ignore runtime state
+.agent-coordination-backup-*/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+__pycache__/
+*.pyc
+!.agents/
+.agents/*
+!.agents/README.md
+!.agents/config/
+!.agents/hooks/
+!.agents/skills/
+!.agents/scripts/
+!.agents/project-bridge/
+!.agents/decisions/
+!.agents/plugins/
+!.agents/hooks.json
+!.agents/state/
+.agents/state/*
+!.agents/state/.gitkeep
+!.codex/
+/.codex/*
+!/.codex/config.toml
+!/.codex/hooks.json
+!.opencode/
+!opencode.json
+# <<< project-bridge <<<

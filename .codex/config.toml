@@ -1,0 +1,8 @@
+# >>> project-bridge >>>
+# Project Bridge MCP (multi-agent coordination) — managed block
+# Git remains authoritative for code; Bridge stores coordination metadata only.
+[mcp_servers.project-bridge]
+command = "sh"
+args = ["-c", "exec \"$(git rev-parse --show-toplevel)/.agents/scripts/bridge\" mcp"]
+env = { PROJECT_BRIDGE_AGENT = "codex" }
+# <<< project-bridge <<<

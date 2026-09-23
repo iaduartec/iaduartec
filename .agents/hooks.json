@@ -1,0 +1,22 @@
+{
+  "project-bridge-status": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "PROJECT_BRIDGE_AGENT=agy PROJECT_BRIDGE_ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/project-bridge/bridge.py\" agy-preinvocation",
+        "timeout": 10
+      }
+    ]
+  },
+  "project-bridge-autorecord": {
+    "enabled": true,
+    "Stop": [
+      {
+        "type": "command",
+        "command": "PROJECT_BRIDGE_AGENT=agy PROJECT_BRIDGE_ROOT=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\" python3 \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.agents/project-bridge/bridge.py\" agy-stop",
+        "timeout": 10
+      }
+    ]
+  }
+}
