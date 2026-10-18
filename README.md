@@ -141,25 +141,22 @@ La idea es que funcionen, se mantengan bien y no exploten cuando alguien toque d
 
 ---
 
-## 🚀 Featured work
+## 🚀 Proyectos destacados
 
-### Infraestructura y telecom
-- despliegue y mantenimiento de redes
-- instalaciones de fibra y cableado estructurado
-- racks, conectividad y cobertura WiFi
-- integración de equipos en entorno profesional
+### [Montes de Oca Offroad](https://github.com/iaduartec/montes-de-oca) · [Demo](https://montes-de-oca.vercel.app)
+Videojuego 3D off-road ambientado en Villafranca Montes de Oca, desarrollado con Babylon.js, TypeScript y Vite.
 
-### Seguridad y sistemas
-- videovigilancia IP
-- alarmas, sensores y grabación
-- soporte técnico e integración de dispositivos
-- mantenimiento preventivo y correctivo
+### [Duartec Inventario PWA](https://github.com/iaduartec/scanner-inventario-app) · [Demo](https://scanner-inventario-app.vercel.app)
+Aplicación instalable para inventario en campo: lectura de códigos y OCR, almacenamiento local, funcionamiento offline, exportación CSV y empaquetado con Capacitor.
 
-### Desarrollo y automatización
-- paneles internos para gestión técnica
-- automatización de flujos de trabajo
-- integración con APIs y herramientas de IA
-- soluciones web y apps orientadas a operativa real
+### [Plataforma de estudio ADIF](https://github.com/iaduartec/adif-web)
+Plataforma de preparación para Oficial de Telecomunicaciones de Entrada con preguntas oficiales trazables, práctica por modelos y seguimiento adaptativo.
+
+### [El Santuario](https://github.com/iaduartec/espaciox) · [Web](https://espaciox.vercel.app)
+Landing y sistema de reservas para un salón privado de eventos en Burgos.
+
+### [Snake Pentagon](https://github.com/iaduartec/snake-pentagon)
+Juego Snake con estética neón dentro de un pentágono.
 
 ---
 
@@ -184,15 +181,9 @@ La idea es que funcionen, se mantengan bien y no exploten cuando alguien toque d
 
 ---
 
-## Webs
-
-- Duartec: https://nuevo.duartec.es
-
----
-
 <p align="center">
   <i>Infraestructura, cable, red, cámaras, servidores y desarrollo.</i><br/>
   <i>Porque reiniciar ayuda. Pero entender el fallo te evita repetir la película.</i>
 </p>
 
-<!-- profile-refresh: 2026-03-08 -->
+<!-- profile-refresh: 2026-10-18 -->
