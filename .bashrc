@@ -1,4 +1,6 @@
-export PATH="/home/ubuntu/.nvm/versions/node/v24.20.0/bin:$PATH"
+# Prioritize user-local wrappers (npm->pnpm) before nvm-managed binaries.
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="/home/ubuntu/.nvm/versions/node/v24.21.0/bin:$PATH"
 # Keep user-installed command-line tools available in interactive shells.
 case ":${PATH:-}:" in
   *":$HOME/.local/bin:"*) ;;
@@ -35,6 +37,16 @@ opencode() {
   if [ "$1" = "quota" ]; then
     ~/.local/bin/usage-manager "$@"
   else
-    command "$HOME/.nvm/versions/node/v24.20.0/bin/opencode" "$@"
+    command "$HOME/.nvm/versions/node/v24.21.0/bin/opencode" "$@"
   fi
 }
+
+# Ensure user-local npm wrapper stays ahead of nvm-managed npm.
+case ":${PATH:-}:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) PATH="$HOME/.local/bin${PATH:+:$PATH}" ;;
+esac
+export PATH
+
+# Re-prepend user-local npm wrapper AFTER nvm/nvm-use changes PATH ordering.
+export PATH="$HOME/.local/bin:$PATH"

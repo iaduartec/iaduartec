@@ -1,5 +1,6 @@
 {
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^4.0.1"
-  }
+  },
+  "packageManager": "pnpm@11.15.0"
 }
